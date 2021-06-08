@@ -312,17 +312,15 @@ class Appointment extends CI_Controller
                 'dependent_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
                 'planDependent_id' => $this->session->userdata('plan_id'),
                 'gender' => $this->session->userdata('gender1'),
-                'NRC_passport' => $this->session->userdata('nrc'),
+                'NRC' => $this->session->userdata('nrc'),
                 'date_of_birth' => $this->session->userdata('date1'),
                 'premium'   => $this->session->userdata('premium'),
 
             ));
 
-           
+
+            redirect('home');
         }
-
-
-        // redirect('home');
     }
 
     public function paymentError()
