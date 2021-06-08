@@ -13,7 +13,7 @@ class Premium extends CI_Controller
 			'website/menu_model',
 		));
 
-		if ($this->session->userdata('isPremiumLogIn') == false)
+		if ($this->session->userdata('isPremiumLogIn') == true)
 			redirect('premiumuser');
 	}
 
@@ -72,18 +72,18 @@ class Premium extends CI_Controller
 			->where('NRC_passport', $this->input->post('nrc', true))
 			->get();
 
-		// var_dump($num_rows->result());
-		$userInfo = $num_rows->result();
+			$userInfo = $num_rows->result();
+			// var_dump($userInfo[1]->policy_id);
 
 		if ($num_rows->num_rows() > 0) {
 
 			$this->session->set_userdata([
 				'isPremiumLogIn' => true,
-				'nrc' => $userInfo[0],
-				'policy_id' => $userInfo[1],
-				'member_f_name' => $userInfo[2],
-				'member_l_name' => $userInfo[3],
-				'member_full_name' =>$userInfo[2]." ". $userInfo[3],
+				'nrc' => $userInfo[0]->NRC_passport,
+				'policy_id' => $userInfo[0]->policy_id,
+				'member_f_name' => $userInfo[0]->member_f_name,
+				'member_l_name' => $userInfo[0]->member_l_name,
+				'member_full_name' =>$userInfo[0]->member_f_name." ". $userInfo[0]->member_l_name,
 			]);
 
 			return True;

@@ -64,12 +64,24 @@ $settings = $this->db->select("language")->get('setting')->row();
                             <a class="nav-link js-scroll-trigger" href="<?php echo base_url('logout') ?>"><i class="icon-calendar"></i>Log Out</a>
                         </li>
                     <?php } ?>
+                    <?php if ($this->session->userdata('isPremiumLogIn')) { ?>
+                        <li class="nav-item nav-btn">
+                            <div class="nav-link js-scroll-trigger">
+                                <i class="fa fa-user"></i>
+                                <?php echo $this->session->userdata('member_full_name') ?>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-btn">
+                            <a class="nav-link js-scroll-trigger" href="<?php echo base_url('logout') ?>"><i class="icon-calendar"></i>Log Out</a>
+                        </li>
+                    <?php } ?>
 
-                    <?php if (!$this->session->userdata('isLogIn')) { ?>
+                    <?php if (!$this->session->userdata('isLogIn') && !$this->session->userdata('isPremiumLogIn')) { ?>
                         <li class="nav-item nav-btn">
                             <a class="nav-link js-scroll-trigger" href="<?= base_url($parent->url . '/login') ?>"><i class="icon-calendar"></i>Agent Login</a>
                         </li>
                     <?php } ?>
+
 
                 </ul>
             </div>
