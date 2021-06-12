@@ -25,7 +25,7 @@
 
 <div class="content">
     <div class="container">
-        <h6 style="padding-top: 50px;">Premium Member Login</h6>
+        <h6 style="padding-top: 50px;">Pay Your Premium</h6>
         
         <!-- Message & exception -->
         <div style="width: 50%; margin: auto;">
@@ -43,12 +43,12 @@
 
             <h5>Enter NRC Number</h5>
             <div class="input-group">
-                <input style="border: 1px solid #ccc" type="text" id="nrc_input" name='nrc' class="form-control" placeholder="Enter NRC number" aria-label="Text input with radio button" autocomplete="FALSE">
+                <input style="border: 1px solid #ccc" type="text" id="nrc_input" name='nrc' class="form-control" placeholder="Enter NRC number" aria-label="Text input with radio button" autocomplete="off">
             </div>
 
             <div style="margin-top: 20px;">
                 <button type="submit" class="btn btn-block btn-primary">
-                    Login
+                    Next
                 </button>
             </div>
             <?= form_close() ?>

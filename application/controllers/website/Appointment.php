@@ -115,6 +115,8 @@ class Appointment extends CI_Controller
             'plan_code' => $this->input->post("6", true),
             'premium' => $this->input->post("4", true),
             'sumasured' => $this->input->post("5", true),
+            'paymentId' => $this->input->post("id", true),
+            'recharge' => $this->input->post("recharge", true),
         ]);
 
         $phone_no  = $this->input->post("airtel_number", true);
@@ -206,6 +208,25 @@ class Appointment extends CI_Controller
 
         if ($this->session->userdata('policy_type') == "GROUP") {
         } else {
+
+            if($this->session->userdata('recharge')){
+
+                // $this->db->insert('payment_receipts', array(
+                //     'receipt_no'   => '0972160250054856',
+                //     'customer_id'   => $customerIdRow[0]->id,
+                //     'policy_id' => $policyIdRow[0]->id,
+                //     'policy_no' => $this->session->userdata('plan_code'),
+                //     'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                //     'plan_id' => $this->session->userdata('plan_id'),
+                //     'date' => $created_date,
+                //     'collection_mode_id' => $this->session->userdata('paymentId'),
+                //     'doc_reference_date'   => $created_date,
+                //     'amount'   => $this->session->userdata('premium'),
+                //     'company_id'   => 16,
+                // ));
+
+                return;
+            }
 
             // insert data into customers table
             $this->db->insert('customers', array(
@@ -315,7 +336,22 @@ class Appointment extends CI_Controller
                 'NRC' => $this->session->userdata('nrc'),
                 'date_of_birth' => $this->session->userdata('date1'),
                 'premium'   => $this->session->userdata('premium'),
+            ));
 
+            // insert in payments
+
+            $this->db->insert('payment_receipts', array(
+                'receipt_no'   => '0972160250054856',
+                'customer_id'   => $customerIdRow[0]->id,
+                'policy_id' => $policyIdRow[0]->id,
+                'policy_no' => $this->session->userdata('plan_code'),
+                'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                'plan_id' => $this->session->userdata('plan_id'),
+                'date' => $created_date,
+                'collection_mode_id' => $this->session->userdata('paymentId'),
+                'doc_reference_date'   => $created_date,
+                'amount'   => $this->session->userdata('premium'),
+                'company_id'   => 16,
             ));
 
 

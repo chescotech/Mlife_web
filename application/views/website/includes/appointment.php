@@ -400,7 +400,6 @@
                                                                         $Fixed_premium = $planrow->fixed_premium;
                                                                         $plan_id = $planrow->plan_id;
                                                                         $plan_code = $planrow->plan_code;
-                                                                        
                                                                         // var_dump($planrow);
 
                                                                         $f_sum_assured = number_format($Sum_assured);
@@ -506,7 +505,7 @@
                                                                                             $f_fixed_premium</strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                    <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
                                                                                         Cover
                                                                                     </button>
                                                                                 </div>
@@ -750,7 +749,7 @@
                                                             <div style="width: 100%; background-color:#6A6A6A; height:2px; margin-bottom: 12px; margin-top:10px; margin-bottom: 10px;">
                                                             </div>
 
-                                                            <div style="display:flex; ">
+                                                            <div style="display:flex;">
 
                                                                 <div>
                                                                     <input class="form-check-input" type="radio" name="Premium3" id="PremiumPlan5">
@@ -1031,13 +1030,13 @@
                                                                                     </li>
                                                                                 </ul>
                                                                                 <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
+                                                                                    Cover
+                                                                                </button>
                                                                             </div>
                                                                             </div>";
                                                                     }
 
                                                                     ?>
-
 
                                                                 </div>
 
@@ -1108,7 +1107,7 @@
                                                                                         </li>
                                                                                     </ul>
                                                                                     <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover</a>
+                                                                                        Cover</button>
                                                                                 </div>
                                                                                 </div>";
                                                                     }
@@ -2237,7 +2236,7 @@
                                             <th scope="col">Surname</th>
                                             <th scope="col">Other names</th>
                                             <th scope="col">Date of Birth</th>
-                                            <th scope="col">Age</th>
+                                            <!-- <th scope="col">Age</th> -->
                                             <th scope="col">Gender</th>
                                             <th scope="col">NRC/Passport number</th>
                                             <th scope="col">Premium</th>
@@ -2280,9 +2279,17 @@
                                 </div>
 
                                 <div style="padding: 20px; right:0; display:relative; justify-content: space-between">
-                                    <button onclick="goToPayment()" class="btn btn-secondary btn-sm pull-right">
-                                        Next
-                                    </button>
+                                    <button onclick="goBackToCoverGrp()" class="btn btn-danger btn-sm pull-right">
+                                        << Back </button>
+
+                                            <button onclick="goToPayment()" class="btn btn-secondary btn-sm pull-right">
+                                                Next >>
+                                            </button>
+                                </div>
+
+
+                                <div style="padding: 20px; right:0; display:relative; justify-content: space-between">
+
                                 </div>
 
                                 <div style="padding: 20px;"></div>
@@ -2331,43 +2338,69 @@
 
                                                     <div class="tab-pane fade show active col-lg-8" style="margin:auto" id="nav-mobilemoney" role="tabpanel" aria-labelledby="nav-mobilemoney-tab">
                                                         <?= form_open_multipart('website/appointment/mobile', 'id="processInfo"') ?>
-                                                        <div style="width:100%">
-                                                            <img style="width:20%" src="./assets_web/img/icons/download.png" alt="MTN Money">
-                                                            <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">MTN Money</label>
-                                                            <div class="input-group">
-                                                                <div class="input-group-text">
-                                                                    <input class="form-check-input mt-0" type="radio" value="" name="mobile_money" id="mtn" aria-label="Radio button for following text input" checked>
+
+                                                        <?php
+                                                        $payment_query = $this->db->select("id,title")
+                                                            ->from('collectionmodes')
+                                                            ->get()
+                                                            ->result();
+
+                                                        foreach ($payment_query as $payment_mode) {
+                                                            $mop = $payment_mode->title; //$mop for mode of payment
+                                                            $id = $payment_mode->id;
+                                                            if (($mop == 'AIRTEL MOBILE MONEY') || ($mop == 'MTN MOBILE MONEY') || ($mop == 'ZAMTEL KWACHA')) {
+
+                                                                if ($mop == 'AIRTEL MOBILE MONEY') {
+                                                                    $mop_logo = './assets_web/img/icons/airtel-icon-ug.png';
+                                                                    $input_name = 'airtel_number';
+                                                                    $input_id = 'airtel_input';
+                                                                    $radio_id = 'airtel';
+                                                                } elseif ($mop == 'MTN MOBILE MONEY') {
+                                                                    $mop_logo = './assets_web/img/icons/download.png';
+                                                                    $input_name = '';
+                                                                    $input_id = 'mtn_input';
+                                                                    $radio_id = 'mtn';
+                                                                } elseif ($mop == 'ZAMTEL KWACHA') {
+                                                                    $mop_logo = './assets_web/img/icons/0wZc1TWg.png';
+                                                                    $input_name = '';
+                                                                    $input_id = 'zamtel_input';
+                                                                    $radio_id = 'zamtel';
+                                                                }
+                                                        ?>
+
+                                                                <div style="width:100%">
+                                                                    <img style="width:20%" src="<?php echo $mop_logo ?>" alt="Logo">
+                                                                    <label style="color: #3b3b3b" for="<?php echo $radio_id ?>" class="form-label"><?php echo $mop ?></label>
+                                                                    <div class="input-group">
+
+                                                                        <div class="input-group-text">
+                                                                            <input class="form-check-input mt-0" type="radio" value="" name="mobile_money" id="<?php echo $radio_id ?>" aria-label="Radio button for following text input" checked>
+                                                                        </div>
+
+                                                                        <input style="border: 1px solid #ccc" type="number" name="<?php echo $input_name ?>" id="<?php echo $input_id ?>" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="FALSE">
+                                                                        <input type="hidden" name="id" value="<?php echo $id ?>">
+                                                                    </div>
                                                                 </div>
-                                                                <input style="border: 1px solid #ccc" type="number" id="mtn_input" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="FALSE">
-                                                            </div>
-                                                        </div>
-                                                        <div style="width:100%; margin-top:10px">
-                                                            <img style="width:20%" src="./assets_web/img/icons/airtel-icon-ug.png" alt="Airtel Money">
-                                                            <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Airtel Money</label>
-                                                            <div class="input-group">
-                                                                <div class="input-group-text">
-                                                                    <input class="form-check-input mt-0" type="radio" value="" name="mobile_money" id="airtel" aria-label="Radio button for following text input">
-                                                                </div>
-                                                                <input style="border: 1px solid #ccc" disabled="disabled" type="number" name="airtel_number" id="airtel_input" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="off">
-                                                            </div>
-                                                        </div>
-                                                        <div style="width:100%; margin-top:10px; ">
-                                                            <img style="width:20%" src="./assets_web/img/icons/0wZc1TWg.png" alt="Zamtel Money">
-                                                            <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Zamtel Money</label>
-                                                            <div class="input-group">
-                                                                <div class="input-group-text">
-                                                                    <input class="form-check-input mt-0" type="radio" value="" name="mobile_money" id="zamtel" aria-label="Radio button for following text input">
-                                                                </div>
-                                                                <input style="border: 1px solid #ccc" disabled="disabled" type="number" id="zamtel_input" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="off">
-                                                            </div>
-                                                        </div>
+
+                                                        <?php
+                                                            }
+                                                        }
+
+                                                        ?>
 
                                                         <div style="height:50px;"></div>
 
                                                         <button type="submit" class="btn btn-block btn-primary">
                                                             Make Payment
                                                         </button>
+
+                                                        <div style="height:70px;"></div>
+
+                                                        <div id="backToCoverBtn"></div>
+
                                                         <?= form_close() ?>
+
+
                                                     </div>
 
                                                     <div class="tab-pane fade show col-lg-7" style="margin:auto" id="nav-visacard" role="tabpanel" aria-labelledby="nav-visacard-tab">
@@ -2383,16 +2416,16 @@
                                                                     <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput1" placeholder="">
                                                                 </div>
                                                                 <div class="mb-3">
-                                                                    <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Card Number</label>
-                                                                    <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput1" placeholder="">
+                                                                    <label style="color: #3b3b3b" for="exampleFormControlInput2" class="form-label">Card Number</label>
+                                                                    <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput2" placeholder="">
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col">
-                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Expiry Date</label>
+                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput3" class="form-label">Expiry Date</label>
                                                                         <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="First name">
                                                                     </div>
                                                                     <div class="col">
-                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">CVV</label>
+                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput4" class="form-label">CVV</label>
                                                                         <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="Last name">
                                                                     </div>
                                                                 </div>
@@ -2420,8 +2453,8 @@
                                                     <div id="ordersummarytype"></div>
                                                     <!-- <div id="ordersummary3"></div> -->
                                                     <!-- <div id="ordersummarycover4"></div> -->
-                                                    <h5 id="ordersummarycoverpay"></h5>
-                                                    <!-- <h5 id="ordersummarycoverassured"></h5> -->
+                                                    <!-- <h5 id="ordersummarycoverpay"></h5> -->
+                                                    <h5 id="ordersummarycoverassured"></h5>
                                                 </div>
                                             </div>
                                         </div>
@@ -2456,10 +2489,6 @@
                     var zamtelMoney = $('#zamtel')
                     var zamtelMoneyInput = $('#zamtel_input')
 
-                    <?php
-                    $dependent_type = $this->db->select('title, min_age, max_age')
-                        ->from('dependent_type')->get();
-                    ?>
 
                     mtnMoney.on('change', function() {
                         if ($(this).is(':checked')) {
@@ -2575,7 +2604,7 @@
                             processForm.appendChild(br);
                         });
 
-                        console.log(data);
+                        // console.log(data);
                     }
 
                     $('#agent').on('change', function() {
@@ -2856,6 +2885,8 @@
 
 
                     // Skip grou type and go to payment
+                    var multiply_by_people = 1;
+
                     function goToPayment() {
                         var target = $('#nav-payment-tab');
                         target.removeClass('disabled');
@@ -2863,13 +2894,69 @@
                         target.trigger('click');
                         // scrolling into view
                         target[0].scrollIntoView(true);
+
+                        var table = $('#autotable')
+                        var tableData = []
+
+                        table.find('tr').each(function(i, el) {
+                            var $tds = $(this).find('td'),
+                                Surname = $tds.eq(1).children().val(),
+                                OtherName = $tds.eq(2).children().val(),
+                                Dob = '9/8/2021',
+                                Gender = $tds.eq(4).text(),
+                                nrc = $tds.eq(5).text(),
+                                Premium = $tds.eq(6).text(),
+                                Sum = $tds.eq(7).text();
+
+                            var Covered = null
+
+                            if ($tds.eq(0).length != 0) Covered = $tds.eq(0).children().val()
+
+                            var date = $tds.eq(3).children().children()
+                            var finalDate = date
+
+                            if (finalDate[0] != undefined)
+                                console.log(finalDate[0].value);
+
+                            tableData.push({
+                                Covered,
+                                Surname,
+                                OtherName,
+                                Dob,
+                                Gender,
+                                nrc,
+                                Premium,
+                                Sum
+                            })
+                            // do something with productId, product, Quantity
+                        });
+
+                        // console.log(tableData);
+
+                        // multiply_by_people = total_beneficiaries;
+                        // alert(multiply_by_people)
                     }
 
-                    var arr = null
+
+
+                    arr = null;
+                    var arr;
+
+                    var cover_type_selected = '';
+                    var plan_type_selected = '';
+                    var policy_type_selected = '';
+                    var sum_assured_selected = '';
+                    var premium_amount_selected = '';
 
                     $(".selection_btn").on('click', function(e) {
+                        // Reset data each time it's called
+                        $("#ordersummarytype").children("div").remove();
+                        $("#ordersummarycoverassured").children("div").remove();
+                        $("#backToCoverBtn").children("div").remove();
+
                         var data = $(this).data("type")
                         arr = data.split(' ')
+                        // console.log(arr)
 
                         var processForm2 = document.getElementById('processInfo');
 
@@ -2885,12 +2972,23 @@
                             processForm2.appendChild(br);
                         });
 
-                        console.log(arr);
+                        // console.log(arr);
 
-                        if (arr[8] === 'GROUP') {
+                        cover_type_selected = arr[0];
+                        plan_type_selected = arr[1];
+                        policy_type_selected = arr[2];
+                        sum_assured_selected = arr[3];
+                        premium_amount_selected = arr[4];
+
+
+                        if (policy_type_selected === 'premium_group') {
 
                             var target = $('#nav-group-tab');
                             target.removeClass('disabled');
+
+                            // Dissable cover type to avoid goign back without ressetting the table
+                            $('#nav-profile-tab').addClass('disabled');
+                            $('#nav-home-tab').addClass('disabled');
 
                             target.trigger('click');
                             // scrolling into view
@@ -2912,13 +3010,13 @@
                             cell1.appendChild(nameOfUser);
 
                             // cell2
-                            var cell3 = row.insertCell(1);
+                            var cell2 = row.insertCell(1);
                             var sirnameOfUser = document.createElement("div")
 
                             sirnameOfUser.id = "sirnameOfUser";
                             sirnameOfUser.innerHTML = $('#lastname').val()
 
-                            cell3.appendChild(sirnameOfUser);
+                            cell2.appendChild(sirnameOfUser);
 
                             // cell3
                             var cell3 = row.insertCell(2);
@@ -2955,33 +3053,9 @@
 
                             cell4.appendChild(DOBOfUser);
 
-                            var cell5 = row.insertCell(4)
-                            var ageOfUser = document.createElement("div")
 
-                            var dateNow = new Date();
 
-                            var dd = dateNow.getDate();
-                            var mm = dateNow.getMonth() + 1;
-                            var yyyy = dateNow.getFullYear();
-
-                            if (dd < 10) {
-                                dd = '0' + dd;
-                            }
-
-                            if (mm < 10) {
-                                mm = '0' + mm;
-                            }
-                            var today = mm.toString() + dd.toString() + yyyy.toString()
-                            var selectedDateNum = parseInt(year)
-                            var todayNum = parseInt(yyyy)
-
-                            var userAge = todayNum - selectedDateNum
-                            ageOfUser.id = 'ageOfUser'
-                            ageOfUser.innerHTML = '<div style="padding-left:10px">' + userAge + '</div>'
-
-                            cell5.appendChild(ageOfUser);
-
-                            var cell6 = row.insertCell(5)
+                            var cell6 = row.insertCell(4)
                             var user_genderDiv = document.createElement("div")
 
                             user_genderDiv.id = "user_gender"
@@ -2989,7 +3063,7 @@
 
                             cell6.appendChild(user_genderDiv);
 
-                            var cell7 = row.insertCell(6)
+                            var cell7 = row.insertCell(5)
                             var user_NRC_Div = document.createElement("div")
 
                             user_NRC_Div.id = "user_nrc"
@@ -2997,19 +3071,19 @@
 
                             cell7.appendChild(user_NRC_Div);
 
-                            var cell8 = row.insertCell(7)
+                            var cell8 = row.insertCell(6)
                             var user_premum_Div = document.createElement("div")
 
                             user_premum_Div.id = "user_premum"
-                            user_premum_Div.innerHTML = '<div style="padding-left:10px">' + arr[9] + '</div>'
+                            user_premum_Div.innerHTML = '<div style="padding-left:10px">' + premium_amount_selected + '</div>'
 
                             cell8.appendChild(user_premum_Div);
 
-                            var cell9 = row.insertCell(8)
+                            var cell9 = row.insertCell(7)
                             var user_sum_Div = document.createElement("div")
 
                             user_sum_Div.id = "user_sum"
-                            user_sum_Div.innerHTML = '<div style="padding-left:10px"> ' + arr[10] + '</div>'
+                            user_sum_Div.innerHTML = '<div style="padding-left:10px"> ' + sum_assured_selected + '</div>'
 
                             cell9.appendChild(user_sum_Div);
 
@@ -3028,24 +3102,37 @@
 
                         // console.log(arr);
 
-                        // var premium = arr[9];
+                        // var premium = premium_amount_selected;
                         $("#addtable").on('click', function() {
                             addRow("autotable");
-                            calculateTotalPremium(arr[9]);
+                            calculateTotalPremium(premium_amount_selected);
                         })
-                        calculateTotalPremium(arr[9]);
-                        // console.log(arr[9]);
+                        calculateTotalPremium(premium_amount_selected);
+
+                        // Add Back BTN
+                        $("#backToCoverBtn").append(`                     
+                                                <div id="backToCoverBtnId" class="btn btn-block btn-warning">
+                                                    Back to Cover Type
+                                                </div>
+                                                `)
+
+                        $("#backToCoverBtnId").on('click', function() {
+                            goBackToCover();
+                        })
+
+
+
 
                         // $("#oderContainer").append(`<div style="border: none; border-top: 1px solid #3b3b3b;"></div>`)
-                        $("#ordersummarycover").append(`
-                                                    <div style="padding:5px;">
-                                                            <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
-                                                            <i style="font-size:19px; color:green" class="fa fa-bed"></i>
-                                                            <div style="color:#3b3b3b">
-                                                                <h5>Cover Name</h5>
-                                                                <h6>${arr[0]}</h6>
-                                                            </div>
-                                                    </div>`);
+                        // $("#ordersummarycover").append(`
+                        //                             <div style="padding:5px;">
+                        //                                     <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
+                        //                                     <i style="font-size:19px; color:green" class="fa fa-bed"></i>
+                        //                                     <div style="color:#3b3b3b">
+                        //                                         <h5>Cover Name</h5>
+                        //                                         <h6>${arr[0]}</h6>
+                        //                                     </div>
+                        //                             </div>`);
 
 
                         $("#ordersummarytype").append(`
@@ -3053,73 +3140,77 @@
                                                         <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
                                                         <div style="color:#3b3b3b">
                                                             <h5>Cover Type</h5>
-                                                            <h6>${arr[1]}</h6>
+                                                            <h6>${cover_type_selected}</h6>
                                                         </div>
                                                     </div>
                                                 `)
 
-                        $("#ordersummary3").append(`
-                                                    <div style="padding:5px;">
-                                                        <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
-                                                        <div style="color:#3b3b3b">
-                                                            <h5>Policy</h5>
-                                                            <h6>${arr[2]}</h6>
-                                                        </div>
-                                                    </div>
-                                                `)
+                        // $("#ordersummary3").append(`
+                        //                             <div style="padding:5px;">
+                        //                                 <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
+                        //                                 <div style="color:#3b3b3b">
+                        //                                     <h5>Policy</h5>
+                        //                                     <h6>${arr[2]}</h6>
+                        //                                 </div>
+                        //                             </div>
+                        //                         `)
 
-                        $("#ordersummarycover4").append(`
-                                                    <div style="padding:5px;">
-                                                        <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
-                                                        <div style="color:#3b3b3b">
-                                                            <h5>Premium Type</h5>
-                                                            <h6>${arr[3]}</h6>
-                                                        </div>
-                                                    </div>
-                                                `)
+                        // $("#ordersummarycover4").append(`
+                        //                             <div style="padding:5px;">
+                        //                                 <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
+                        //                                 <div style="color:#3b3b3b">
+                        //                                     <h5>Premium Type</h5>
+                        //                                     <h6>${arr[3]}</h6>
+                        //                                 </div>
+                        //                             </div>
+                        //                         `)
 
                         // Get the value of the total amount to be paid
 
-                        var total_amount_to_pay = document.getElementById('totalMonthlyCost').value;
-
-
-                        $("#ordersummarycoverpay").append(`
-                                                    <div style="padding:5px;">
-                                                        <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
-                                                        <div style="color:green">
-                                                            <h5>Amount Assured : K ${arr[4]}.00</h5>
-                                                        </div>
-                                                    </div>
-                                                `)
+                        // $("#ordersummarycoverpay").append(`
+                        //                             <div style="padding:5px;">
+                        //                                 <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
+                        //                                 <div style="color:green">
+                        //                                     <h5>Amount Assured : K ${arr[4]}.00</h5>
+                        //                                 </div>
+                        //                             </div>
+                        //                         `)
+                        // console.log(multiply_by_people)
                         $("#ordersummarycoverassured").append(`
                                                     <div style="padding:5px;">
                                                         <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
                                                         <div style="color:green">
-                                                            <h5>Amount Payable : <span style="color:red">K ${arr[5]}.00</span></h5>
+                                                            <h5>Amount Payable : <span style="color:red">K ${premium_amount_selected * multiply_by_people}.00</span></h5>
                                                         </div>
                                                     </div>
                                                 `)
-                        // $("#ordersummarycoverassured").append(`Amount Payable: K ${arr[5]}.00`)
+
+
                     })
+
+                    function goBackToCover() {
+                        var target = $('#nav-profile-tab');
+                        target.removeClass('disabled');
+                        // Disable group tab
+                        var grpTab = $('#nav-group-tab');
+                        grpTab.addClass('disabled');
+                        // opening tab
+                        target.trigger('click');
+                        // scrolling into view
+                        target[0].scrollIntoView(true);
+
+                        total_beneficiaries--;
+                        // reset table and table and premium
+                        $("table").children().remove()
+                        total_premuim = 2 * 0;
+                        document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+
+                    }
+
 
                     var total_amount_to_pay = document.getElementById('totalMonthlyCost').value;
 
-                    var total_beneficiaries = document.getElementById("autotable").rows[0].cells.length;
-
-
-                    // console.log(total_amount_to_pay);
-                    // console.log(total_beneficiaries);
-
-                    // // var premium = arr[9];
-                    // $("#addtable").on('click', function() {
-                    //     addRow("autotable");
-                    //     calculateTotalPremium(arr[9]);
-                    // })
-                    // // calculateTotalPremium(premium);
-
-                    // $("#deletetablerow").on('click', function() {
-                    //     deleteRow("autotable")
-                    // })
+                    // var total_beneficiaries = document.getElementById("autotable").rows[0].cells.length;
 
 
                     function nextTab() {
@@ -3142,19 +3233,33 @@
 
                         // cell1
                         var cell1 = row.insertCell(0);
-                        var select = document.createElement("div");
+                        // var typelist = document.createElement("div");    
+                        var type_select = document.createElement("select");
 
-                        select.name = "element3";
-                        select.id = "element3"
-                        select.className = "form-control"
-                        select.className += " basic-single"
-                        select.id = 'personCovered'
+                        var op = ["CHILD_1", "CHILD_2", "CHILD_3", "CHILD_4", "SPOUSE", "PLANHOLDER", "ADULT2", "DEPENDANT1", "DEPENDANT2", "DEPENDANT3", "DEPENDANT4", "TILT GROUP MEMBER", "GROUP MEMBER 2", "GROUP MEMBER 3", "GROUP MEMBER 4", "GROUP MEMBER 5", "GROUP MEMBER 6", "GROUP MEMBER 7", "GROUP MEMBER 8", "GROUP MEMBER 9", "GROUP MEMBER 10", "ADULT1", "UNCLASSIFIED", "ADULT3", "CHILD_0-5 YRS", "DEPENDANT", "DEPENDANT", "PLANHOLDER", "DEPENDANT"];
 
-                        // select.innerHTML='<select id="depand" class="form-control basic-single"><?php foreach ($dependent_type->result() as $row) {$title = $row->title; echo "<option value='$title'> $title</option>";}?> </select>'
+                        for (const val of op) {
+                            var option = document.createElement("option");
+
+                            option.value = val;
+                            option.text = val.charAt(0).toUpperCase() + val.slice(1);
+                            type_select.appendChild(option);
+                        }
+
+                        type_select.className = "form-control"
+                        type_select.className += " basic-single"
+
+                        type_select.name = "element3";
+                        type_select.id = "element3"
+                        type_select.id = 'personCovered'
+
+                        // typelist.appendChild(type_select);
+
+                        // select.innerHTML='<select id="depand" class="form-control basic-single"></select>'
 
                         // var covered = ["spouse", "child", "dependent"];
 
-                        
+
 
                         // for (const val of covered) {
                         //     var option = document.createElement("option");
@@ -3220,7 +3325,6 @@
 
                         var date = new Date();
                         var current_year = date.getFullYear();
-                        // console.log(current_year);
 
                         var years = ['Year', '1950', '1951', '1952', '1953', '1954', '1955', '1956', '1957', '1958',
                             '1959', '1960', '1961', '1962', '1963', '1964', '1965', '1966', '1967', '1968', '1969',
@@ -3231,7 +3335,6 @@
                             '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021'
                         ];
 
-                        // console.log(years);
 
                         // const theDates = [];
                         // for (let year = new Date().getFullYear(); year !== null;) {
@@ -3241,7 +3344,6 @@
                         //     }
                         //     years.push(row);
                         // }
-                        // console.log(theDates);
 
 
                         for (const val of years) {
@@ -3256,16 +3358,8 @@
 
                         dob_div.appendChild(dob_select3);
 
-
-                        // cell 5
-                        var age = row.insertCell(4);
-                        let age_input = document.createElement("div");
-
-                        age_input.id = "age";
-                        age_input.createTextNode = "text";
-
                         // cell6
-                        var tbl_gender = row.insertCell(5);
+                        var tbl_gender = row.insertCell(4);
                         var genderselect = document.createElement("select");
 
                         genderselect.name = "element3";
@@ -3284,7 +3378,7 @@
                         }
 
                         // cell 7
-                        var idNumber = row.insertCell(6);
+                        var idNumber = row.insertCell(5);
                         var idNumber_input = document.createElement("input");
 
                         idNumber_input.type = "text";
@@ -3293,37 +3387,26 @@
                         idNumber_input.className = "coveredPersonTableInput";
 
 
-
-                        // console.log(arr);
-
-
-                        var cell8 = row.insertCell(7)
+                        var cell8 = row.insertCell(6)
                         var user_premum_Div = document.createElement("div")
 
                         user_premum_Div.id = "user_premum"
-                        user_premum_Div.innerHTML = '<div style="padding-left:10px">' + arr[9] + '</div>'
+                        user_premum_Div.innerHTML = '<div style="padding-left:10px">' + premium_amount_selected + '</div>'
 
                         cell8.appendChild(user_premum_Div);
 
-                        var amountassuered = row.insertCell(8)
+                        var amountassuered = row.insertCell(7)
                         var amountassuered_input = document.createElement("div")
 
 
                         amountassuered_input.id = "user_sum"
-                        amountassuered_input.innerHTML = '<div style="padding-left:10px"> ' + arr[10] + '</div>'
+                        amountassuered_input.innerHTML = '<div style="padding-left:10px"> ' + sum_assured_selected + '</div>'
 
                         amountassuered.appendChild(amountassuered_input);
 
 
-
-
-
-
-
-
-
                         // cell 10
-                        var actionbtn = row.insertCell(9);
+                        var actionbtn = row.insertCell(8);
                         var actionDiv = document.createElement("div");
 
                         actionDiv.id = "remove";
@@ -3332,25 +3415,13 @@
 
                         actionbtn.appendChild(actionDiv);
 
-                        // Get the index of a table
-                        // var total_columns = document.getElementById("autotable").rows[2].cells.length;
-                        // console.log(total_columns);
-                        // function calculateTotalPremium() {
-                        //     // Get total cols...
-                        //     total_columns++;
-                        //     // console.log(total_columns);
-                        //     document.getElementById("remove").innerHTML = total_premuim;
-                        // }
-
-
-
                         amountassuered_input.createTextNode = "20";
 
-                        cell1.appendChild(select);
+                        cell1.appendChild(type_select);
                         surname.appendChild(surname_input);
                         othername.appendChild(othername_input);
                         dob.appendChild(dob_div);
-                        age.appendChild(age_input);
+                        // age.appendChild(age_input);
                         tbl_gender.appendChild(genderselect);
                         idNumber.appendChild(idNumber_input);
                         amountassuered.appendChild(amountassuered_input);
@@ -3368,9 +3439,29 @@
                         });
                     });
 
-                    // uPDATE total premium IF ROW HAS BEEN REMOVED
+
+
+
+                    function goBackToCoverGrp() {
+                        var target = $('#nav-profile-tab');
+                        target.removeClass('disabled');
+                        // Disable group tab
+                        var grpTab = $('#nav-group-tab');
+                        grpTab.addClass('disabled');
+                        // opening tab
+                        target.trigger('click');
+                        // scrolling into view
+                        target[0].scrollIntoView(true);
+
+                        total_beneficiaries--;
+                        // reset table and table and premium
+                        $("table").children().remove()
+                        total_premuim = 2 * 0;
+                        document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                    }
+
+                    // UPDATE total premium IF ROW HAS BEEN REMOVED
                     var total_premuim = 0;
-                    var total_beneficiaries = document.getElementById("autotable").rows[0].cells.length;
 
                     function removeTotalPremium(premium) {
                         // Get the amount of premium and put it in the variable $primium below...
@@ -3378,7 +3469,6 @@
                         // Get total policy beneficiaries...
                         total_beneficiaries--;
 
-                        console.log(premium);
                         total_premuim = parseInt(premium) * total_beneficiaries;
                         console.log(total_beneficiaries);
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
@@ -3387,9 +3477,9 @@
                     function removeRow(btn) {
                         var removeBtn = document.getElementById('autotable');
                         removeBtn.deleteRow(btn.parentNode.parentNode.rowIndex);
-                        // console.log(arr[9]);
-                        removeTotalPremium(arr[9]);
+                        removeTotalPremium(premium_amount_selected);
                     }
+
 
                     var dayset = 0;
                     var monthset = 0;

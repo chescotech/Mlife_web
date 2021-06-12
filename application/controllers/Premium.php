@@ -13,8 +13,8 @@ class Premium extends CI_Controller
 			'website/menu_model',
 		));
 
-		if ($this->session->userdata('isPremiumLogIn') == true)
-			redirect('premiumuser');
+		// if ($this->session->userdata('isPremiumLogIn') == true)
+		// 	redirect('premiumuser');
 	}
 
 	public function index($id = null)
@@ -67,23 +67,29 @@ class Premium extends CI_Controller
 
 	public function checkPremiumUser()
 	{
-		$num_rows = $this->db->select('NRC_passport,policy_id,member_f_name,member_l_name')
-			->from('policy_member')
-			->where('NRC_passport', $this->input->post('nrc', true))
+		$num_rows = $this->db->select('pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.policy_id')
+			->from('customers AS cus')
+			->join('policies AS po','po.customer_id=cus.id', 'inner')
+			->join('policy_member AS pom','pom.policy_id=po.id', 'inner')
+			->join('plan_dependents AS pop','pop.plan_id=po.plan_id', 'inner')
+			->where('cus.nrc', $this->input->post('nrc', true))
 			->get();
 
 			$userInfo = $num_rows->result();
-			// var_dump($userInfo[1]->policy_id);
+			// var_dump($userInfo);
 
 		if ($num_rows->num_rows() > 0) {
 
 			$this->session->set_userdata([
 				'isPremiumLogIn' => true,
 				'nrc' => $userInfo[0]->NRC_passport,
+				'sum_assured' => $userInfo[0]->sum_assured,
+				'fixed_premium' => $userInfo[0]->fixed_premium,
+				'plan_id' => $userInfo[0]->plan_id,
 				'policy_id' => $userInfo[0]->policy_id,
 				'member_f_name' => $userInfo[0]->member_f_name,
 				'member_l_name' => $userInfo[0]->member_l_name,
-				'member_full_name' =>$userInfo[0]->member_f_name." ". $userInfo[0]->member_l_name,
+				'member_full_name' =>$userInfo[0]->member_f_name." ". $userInfo[0]->member_l_name
 			]);
 
 			return True;

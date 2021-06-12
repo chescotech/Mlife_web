@@ -5,6 +5,30 @@ $settings = $this->db->select("site_align")
     ->get('setting')
     ->row();
 ?>
+
+<style>
+    .content {
+        width: 100%;
+        height: 100vh;
+        background-color: #FCFCFC;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+    }
+
+    .login {
+        margin: auto;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 10px;
+        align-items: center;
+    }
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,13 +52,17 @@ $settings = $this->db->select("site_align")
     <link href="<?php echo base_url(); ?>assets/css/pe-icon-7-stroke.css" rel="stylesheet" type="text/css" />
     <!-- style css -->
     <link href="<?php echo base_url(); ?>assets/css/custom.css" rel="stylesheet" type="text/css" />
+
+
 </head>
+
 
 <body>
     <!-- Content Wrapper -->
     <div class="login-wrapper">
         <div class="container-center">
-            <div class="panel panel-bd">
+
+            <div class="login">
                 <div class="panel-heading">
                     <div class="view-header">
                         <div class="header-icon">
@@ -71,7 +99,6 @@ $settings = $this->db->select("site_align")
                     </div>
                 </div>
 
-
                 <div class="panel-body">
 
                     <?php echo form_open('login', 'id="loginForm" novalidate'); ?>
@@ -82,17 +109,24 @@ $settings = $this->db->select("site_align")
 
                     <div class="form-group">
                         <label class="control-label" for="password"><?= display('password') ?></label>
-                        <input type="password" placeholder="<?= display('password') ?>" name="password" id="password" class="form-control" >
+                        <input type="password" placeholder="<?= display('password') ?>" name="password" id="password" class="form-control">
                     </div>
 
                     <input type="hidden" name="user_role" value="1">
 
                     <div>
-                        <button type="submit" class="btn btn-success"><?= display('login') ?></button>
+                        <button type="submit" class="btn btn-block btn-primary"><?= display('login') ?></button>
                     </div>
                     </form>
                 </div>
+
+               
             </div>
+
+
+
+
+
         </div>
     </div>
     <!-- /.content-wrapper -->
