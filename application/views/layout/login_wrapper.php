@@ -117,6 +117,9 @@ $settings = $this->db->select("site_align")
                     <div>
                         <button type="submit" class="btn btn-block btn-primary"><?= display('login') ?></button>
                     </div>
+                    <div style="margin-top: 10px;">
+                        <button type="submit" class="btn btn-block btn-secondary"> Resert Password</button>
+                    </div>
                     </form>
                 </div>
 

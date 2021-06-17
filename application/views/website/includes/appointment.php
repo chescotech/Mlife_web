@@ -36,7 +36,31 @@
         border-left: 1px solid #D9D9D9;
         color: #828482;
     }
+
+    .divError {
+        border: 1px solid #D03238 !important;
+        color: #D03238
+    }
+
+    .textError {
+        color: #D03238
+    }
+
+    .hidden {
+        display: none;
+    }
 </style>
+
+
+<?php
+
+$isNrc = $this->db->select('nrc')
+    ->from('customers')->get();
+
+$Nrcs = $isNrc->result();
+?>
+
+
 
 <div id="appointment-form" style="background-color: #304060; color:#F7F7F9">
     <div class="container">
@@ -89,10 +113,12 @@
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">First Name of Proposer *</label>
                                     <input type="text" class="form-control" name="lastname" id="lastname" placeholder="First name" required autocomplete="off">
+                                    <div class="hidden textError" id="f_name_err"></div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">Last Name *</label>
                                     <input type="text" class="form-control" name="othername" id="othername" placeholder="Lastt name" required autocomplete="off">
+                                    <div class="hidden textError" id="othername_err"></div>
                                 </div>
                             </div>
 
@@ -100,10 +126,12 @@
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">Postal Address *</label>
                                     <input type="text" class="form-control" name="postal" id="postal" placeholder="Postal Address" required autocomplete="false">
+                                    <div class="hidden textError" id="postal_err"></div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">Physical Address *</label>
                                     <input type="text" class="form-control" name="physical" id="physical" placeholder="physical address" required autocomplete="false">
+                                    <div class="hidden textError" id="physical_err"></div>
                                 </div>
                             </div>
 
@@ -116,6 +144,7 @@
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff"><?= display('phone') ?> *</label>
                                     <input type="number" class="form-control" name="mobile" id="phonenumber" placeholder="Phone number without (+26)" required autocomplete="off">
+                                    <div class="hidden textError" id="phonenumber_err"></div>
                                 </div>
                             </div>
 
@@ -136,6 +165,7 @@
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">National Registion Card*</label>
                                     <input type="text" class="form-control" name="nrc" id="nrc" placeholder="NRC number" required autocomplete="off">
+                                    <div class="hidden textError" id="nrcNumber_err"></div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label style="color: #fff">Occupation *</label>
@@ -300,7 +330,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" autocomplete="off">
                                                 <label class="form-check-label" for="flexRadioDefault1">
-                                                    Accidental death Cover ony
+                                                    Accidental death Cover
                                                 </label>
                                             </div>
                                         </div>
@@ -388,7 +418,7 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->not_like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI PAY AS')
+                                                                        ->like('plans.plan_name', 'PAY AS')
                                                                         ->get()
                                                                         ->result();
 
@@ -464,14 +494,14 @@
                                                                         ->get()
                                                                         ->result();
 
-                                                                    $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+                                                                    $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
                                                                         ->from('plan_dependents')
                                                                         ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
                                                                         ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI PAY AS')
+                                                                        ->like('plans.plan_name', 'PAY AS')
                                                                         ->get()
                                                                         ->result();
 
@@ -481,6 +511,8 @@
                                                                         $PlanName = $planrow->plan_name;
                                                                         $Sum_assured = $planrow->sum_assured;
                                                                         $Fixed_premium = $planrow->fixed_premium;
+                                                                        $plan_id = $planrow->plan_id;
+                                                                        $plan_code = $planrow->plan_code;
 
                                                                         $f_sum_assured = number_format($Sum_assured);
                                                                         $f_fixed_premium = number_format($Fixed_premium);
@@ -505,7 +537,7 @@
                                                                                             $f_fixed_premium</strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                    <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium $plan_id $plan_code' class='selection_btn btn btn-primary'>Select
                                                                                         Cover
                                                                                     </button>
                                                                                 </div>
@@ -596,7 +628,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->not_like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI INDIVIDUAL ONE')
+                                                                        ->like('plans.plan_name', 'TRIP')
+                                                                        ->not_like('plans.plan_name', 'COMBI')
                                                                         ->get()
                                                                         ->result();
 
@@ -675,7 +708,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI INDIVIDUAL ONE')
+                                                                        ->like('plans.plan_name', 'TRIP')
+                                                                        ->not_like('plans.plan_name', 'COMBI')
                                                                         ->get()
                                                                         ->result();
 
@@ -691,10 +725,9 @@
 
                                                                         echo "<div class='card' style='width: 18rem; margin:5px'>
                                                                                 <div class='card-body'>
-                                                                                        $PlanName
-                                                     
-                                                                                    <h5 style='color:#3b3b3b'>
-                                                                                                        </h5>
+                                                                                        <h5 style='color:#3b3b3b'>
+                                                                                    $PlanName
+                                                                                </h5>
 
                                                                                     <ul class='list-group list-group-flush'>
                                                                                         <li class='list-group-item'>
@@ -709,7 +742,7 @@
                                                                                             $f_fixed_premium</strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                    <button data-type='Accidental pay_as_u_go premium_group $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
                                                                                         Cover</a>
                                                                                 </div>
                                                                                 </div>";
@@ -749,7 +782,7 @@
                                                             <div style="width: 100%; background-color:#6A6A6A; height:2px; margin-bottom: 12px; margin-top:10px; margin-bottom: 10px;">
                                                             </div>
 
-                                                            <div style="display:flex;">
+                                                            <div style="display:flex; ">
 
                                                                 <div>
                                                                     <input class="form-check-input" type="radio" name="Premium3" id="PremiumPlan5">
@@ -776,8 +809,6 @@
                                                                 <div class="row">
 
                                                                     <?php
-
-
                                                                     $cover_benefits_id = $this->db->select("id")
                                                                         ->from('cover_benefits')
                                                                         ->like('title', 'ACCIDENTAL DEATH BENEFIT')
@@ -797,7 +828,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->not_like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI INDIVIDUAL WAY')
+                                                                        ->like('plans.plan_name', 'WAY')
+                                                                        ->not_like('plans.plan_name', 'COMBI')
                                                                         ->get()
                                                                         ->result();
 
@@ -874,7 +906,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI INDIVIDUAL WAY')
+                                                                        ->like('plans.plan_name', 'WAY')
+                                                                        ->not_like('plans.plan_name', 'COMBI')
                                                                         ->get()
                                                                         ->result();
 
@@ -908,7 +941,7 @@
                                                                                             $f_fixed_premium</strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                    <button data-type='Accidental pay_as_u_go premium_group $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
                                                                                         Cover</a>
                                                                                 </div>
                                                                                 </div>";
@@ -995,7 +1028,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->not_like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI FAMILY')
+                                                                        ->like('plans.plan_name', 'FAMILY')
+                                                                        ->not_like('plans.plan_name', 'COMB')
                                                                         ->get()
                                                                         ->result();
 
@@ -1030,13 +1064,13 @@
                                                                                     </li>
                                                                                 </ul>
                                                                                 <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover
-                                                                                </button>
+                                                                                    Cover</a>
                                                                             </div>
                                                                             </div>";
                                                                     }
 
                                                                     ?>
+
 
                                                                 </div>
 
@@ -1072,7 +1106,8 @@
                                                                         ->where('cover_benefits_type', $cover_benefits_id[0]->id)
                                                                         ->like('cover_types.title', 'GROUP')
                                                                         ->like('plans.product_id', $product_id[0]->id)
-                                                                        ->like('plans.plan_name', 'DTI FAMILY')
+                                                                        ->like('plans.plan_name', 'FAMILY')
+                                                                        ->not_like('plans.plan_name', 'COMB')
                                                                         ->get()
                                                                         ->result();
 
@@ -1106,8 +1141,8 @@
                                                                                             $f_fixed_premium</strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover</button>
+                                                                                    <button data-type='Accidental pay_as_u_go premium_group $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                        Cover</a>
                                                                                 </div>
                                                                                 </div>";
                                                                     }
@@ -1312,51 +1347,84 @@
                                                                             ->get()
                                                                             ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->not_like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI PAY AS')
-                                                                            ->get()
-                                                                            ->result();
+                                                                        $plansList = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plans.plan_name AS plan_name,
+                                                                            sum_assured,fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%PAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND fixed_premium != '0'
+                                                                            GROUP BY plan_name
+                                                                        ");
 
-                                                                        // var_dump($plansList);
+                                                                        $results = $plansList->result_array();
+                                                                        // var_dump($results);
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                        foreach ($results as $planrow) {
+                                                                            $PlanName = $planrow['plan_name'];
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                            $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                                                                            sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%PAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND plan_name = '$PlanName'
+                                                                            ");
 
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                            <div class='card-body'>
+                                                                            $results_details = $plansList_details->result_array();
+                                                                        ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
 
-                                                                                <h5 style='color:#3b3b3b'>
-                                                                                    $PlanName
-                                                                                </h5>
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
 
-                                                                                <ul class='list-group list-group-flush'>
-                                                                                    <li class='list-group-item'>
-                                                                                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                            Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                            $f_sum_assured
-                                                                                        </div>
-                                                                                        </strong>
-                                                                                    </li>
-                                                                                    <li class='list-group-item'>
+                                                                                    <!-- <ul class='list-group list-group-flush'> -->
+
+                                                                                    <?php
+                                                                                    foreach ($results_details as $planrow_details) {
+                                                                                        $title = $planrow_details['title'];
+                                                                                        $Sum_assured = $planrow_details['sum_assured'];
+                                                                                        $Fixed_premium = $planrow_details['fixed_premium'];
+                                                                                        $plan_id = $planrow_details['plan_id'];
+                                                                                        $plan_code = $planrow_details['plan_code'];
+
+                                                                                        $f_sum_assured = number_format($Sum_assured);
+                                                                                        if ($Fixed_premium > 0) {
+                                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                                        }
+
+                                                                                        echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                    }
+                                                                                    ?>
+                                                                                    <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                    <div>
                                                                                         Get Started at <strong>K
-                                                                                        $f_fixed_premium</strong>
-                                                                                    </li>
-                                                                                </ul>
-                                                                                <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
+                                                                                            <?php echo $f_fixed_premium ?></strong>
+                                                                                    </div>
+                                                                                    <!-- </ul> -->
+                                                                                    <?php echo "
+                                                                                    <button data-type='Combined pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium $plan_id $plan_code'
+                                                                                        class='selection_btn btn btn-primary'>Select Cover
+                                                                                    </button>
+                                                                                    ";
+                                                                                    ?>
+
+                                                                                    <!-- <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                        Cover
+                                                                                    </button> -->
+                                                                                </div>
                                                                             </div>
-                                                                            </div>";
+                                                                        <?php
                                                                         }
 
                                                                         ?>
@@ -1370,27 +1438,6 @@
                                                             </div>
                                                             <!-- end -->
                                                             <div style="margin-top:10px">
-                                                                <div style="display:flex; ">
-
-                                                                    <div>
-                                                                        <input class="form-check-input" type="radio" name="com_Premium1" id="com_PremiumPlan1">
-                                                                        <label class="form-check-label" for="com_PremiumPlan1">
-                                                                            <strong><span style="color:red; font-size:17px">-></span>
-                                                                                Premium per Individual <span style="color:#6199F5;">(Single Policy)</span>
-                                                                            </strong>
-                                                                        </label>
-                                                                    </div>
-
-                                                                    <div style="margin-left: 40px;">
-                                                                        <input class="form-check-input" type="radio" name="com_Premium1" id="com_PremiumPlan2">
-                                                                        <label class="form-check-label" for="com_PremiumPlan2">
-                                                                            <strong><span style="color:red; font-size:17px">-></span>
-                                                                                Premium per Individual <span style="color:#6199F5;">(Group
-                                                                                    Policy)</span></strong>
-                                                                        </label>
-                                                                    </div>
-
-                                                                </div>
 
                                                                 <div class="collapse" id="com_PremiumCoverPlan2" aria-expanded="true">
 
@@ -1411,51 +1458,88 @@
                                                                             ->get()
                                                                             ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI PAY AS')
-                                                                            ->get()
-                                                                            ->result();
+                                                                        $plansList = $this->db->query("SELECT cover_benefits.title,plan_id,plans.plan_code,plans.plan_name,
+                                                                            fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%PAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND fixed_premium != '0'
 
-                                                                        // var_dump($plansList);
+                                                                            GROUP BY plan_name
+                                                                            ");
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                        $results = $plansList->result_array();
+                                                                        // var_dump($results);
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                        foreach ($results as $planrow) {
+                                                                            $PlanName = $planrow['plan_name'];
+                                                                            ///////////////////////////////
+                                                                            $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plan_id,plans.plan_name,sum_assured,
+                                                                            fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%PAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND plan_name = '$PlanName'
+                                                                            ");
 
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                                <div class='card-body'>
+                                                                            $results_details = $plansList_details->result_array();
 
-                                                                                    <h5 style='color:#3b3b3b'>
-                                                                                        $PlanName
-                                                                                    </h5>
+
+                                                                        ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
+
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
 
                                                                                     <ul class='list-group list-group-flush'>
-                                                                                        <li class='list-group-item'>
-                                                                                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                                Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                                $f_sum_assured
-                                                                                            </div>
-                                                                                            </strong>
-                                                                                        </li>
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+                                                                                            $all_sums .= $Sum_assured . "<br>";
+
+                                                                                            // echo "<script> console.log('$all_sums')</script>";
+
+                                                                                            echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
                                                                                         <li class='list-group-item'>
                                                                                             Get Started at <strong>K
-                                                                                            $f_fixed_premium</strong>
+                                                                                                <?php echo $f_fixed_premium ?></strong>
                                                                                         </li>
                                                                                     </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $PlanName $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover</a>
+                                                                                    <?php echo "
+                                                                                    <button data-type='Combined pay_as_u_go premium_group $all_sums $f_fixed_premium $plan_id $plan_code'
+                                                                                        class='selection_btn btn btn-primary'>Select Cover
+                                                                                    </button>
+                                                                                    ";
+                                                                                    unset($all_sums);
+                                                                                    ?>
                                                                                 </div>
-                                                                                </div>";
+                                                                            </div>
+                                                                        <?php
                                                                         }
 
                                                                         ?>
@@ -2475,6 +2559,8 @@
                     //     e.preventDefault();
                     // });
 
+
+
                     // var validator = $("#basic-form").validate({
 
                     // });
@@ -2488,6 +2574,12 @@
 
                     var zamtelMoney = $('#zamtel')
                     var zamtelMoneyInput = $('#zamtel_input')
+
+                    <?php
+                    $dependent_type = $this->db->select('title, min_age, max_age')
+                        ->from('dependent_type')->get();
+                    ?>
+
 
 
                     mtnMoney.on('change', function() {
@@ -2529,13 +2621,7 @@
                         event.preventDefault();
                         // `this` is the clicked <a> tag
                         validatePersonalInfoFunc()
-                        var target = $('#nav-profile-tab');
-                        target.removeClass('disabled');
 
-                        // opening tab
-                        target.trigger('click');
-                        // scrolling into view
-                        target[0].scrollIntoView(true);
                     });
 
                     // User Data ent
@@ -2543,6 +2629,99 @@
                     var data = []
 
                     function validatePersonalInfoFunc() {
+
+                        var nrcData = '<?php echo json_encode($Nrcs); ?>';
+                        var Nrc_found = nrcData.includes($('#nrc').val(), 0)
+
+                        // console.log(Nrc_found);
+                        var lastname = $('#lastname');
+                        var lastnameErrmsg = document.getElementById("f_name_err");
+
+                        var othername = $('#othername');
+                        var othernameErrmsg = document.getElementById("othername_err");
+
+                        var postal = $('#postal');
+                        var postalErrmsg = document.getElementById("postal_err");
+
+                        var physical = $('#physical');
+                        var physicalErrmsg = document.getElementById("physical_err");
+
+                        var phonenumber = $('#phonenumber');
+                        var phonenumberErrmsg = document.getElementById("phonenumber_err");
+
+                        var nrcNumber = $('#nrc');
+                        var nrcNumberErrmsg = document.getElementById("nrcNumber_err");
+
+                        if (lastname.val() === '') {
+
+                            lastname.addClass('divError');
+
+                            lastnameErrmsg.classList.remove('hidden');
+                            lastnameErrmsg.innerHTML = "First name of proposer must not be empty"
+                            lastname[0].scrollIntoView(true);
+
+                            return
+                        } else if (othername.val() === '') {
+
+                            othername.addClass('divError');
+
+                            othernameErrmsg.classList.remove('hidden');
+                            othernameErrmsg.innerHTML = "Other name of proposer must not be empty"
+                            othername[0].scrollIntoView(true);
+
+                        } else if (postal.val() === '') {
+
+                            postal.addClass('divError');
+
+                            postalErrmsg.classList.remove('hidden');
+                            postalErrmsg.innerHTML = "Postal addres of proposer must not be empty"
+                            postal[0].scrollIntoView(true);
+
+                        } else if (physical.val() === '') {
+
+                            physical.addClass('divError');
+
+                            physicalErrmsg.classList.remove('hidden');
+                            physicalErrmsg.innerHTML = "Physical addres of proposer must not be empty"
+                            physical[0].scrollIntoView(true);
+
+                        } else if (physical.val() === '') {
+
+                            phonenumber.addClass('divError');
+
+                            phonenumberErrmsg.classList.remove('hidden');
+                            phonenumberErrmsg.innerHTML = "Phone number of proposer must not be empty"
+                            phonenumber[0].scrollIntoView(true);
+
+                        } else if (physical.val() === '') {
+
+                            nrcNumber.addClass('divError');
+
+                            nrcNumberErrmsg.classList.remove('hidden');
+                            nrcNumberErrmsg.innerHTML = "National registion of proposer must not be empty"
+                            nrcNumber[0].scrollIntoView(true);
+
+                        } else {
+
+                            if (Nrc_found === true) {
+                                nrcNumber.addClass('divError');
+
+                                nrcNumberErrmsg.classList.remove('hidden');
+                                nrcNumberErrmsg.innerHTML = "National registion is already been used by other account"
+                                nrcNumber[0].scrollIntoView(true);
+                                return
+                            } else {
+
+                                var target = $('#nav-profile-tab');
+                                target.removeClass('disabled');
+
+                                // opening tab
+                                target.trigger('click');
+                                // scrolling into view
+                                target[0].scrollIntoView(true);
+                            }
+
+                        }
 
 
                         data = [
@@ -2604,7 +2783,7 @@
                             processForm.appendChild(br);
                         });
 
-                        // console.log(data);
+                        console.log(data);
                     }
 
                     $('#agent').on('change', function() {
@@ -2622,7 +2801,7 @@
                         total_beneficiaries++;
 
                         // console.log(total_beneficiaries);
-                        total_premuim = parseInt(premium) * total_beneficiaries;
+                        total_premuim = parseInt(premium) * (total_beneficiaries + 1);
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
                     }
 
@@ -2711,7 +2890,7 @@
 
                     })
 
-                    $('com_covertype3').on('change', function(e) {
+                    $('#com_covertype3').on('change', function(e) {
                         if ($(this).is(':checked')) {
                             $('com_collapsePlan1').collapse('hide')
                             $('com_collapsePlan2').collapse('hide')
@@ -2722,7 +2901,7 @@
 
                     })
 
-                    $('com_covertype4').on('change', function(e) {
+                    $('#com_covertype4').on('change', function(e) {
                         if ($(this).is(':checked')) {
                             $('com_collapsePlan1').collapse('hide')
                             $('com_collapsePlan2').collapse('hide')
@@ -2733,7 +2912,7 @@
 
                     })
 
-                    $('com_covertype5').on('change', function(e) {
+                    $('#com_covertype5').on('change', function(e) {
                         if ($(this).is(':checked')) {
                             $('com_collapsePlan1').collapse('hide')
                             $('com_collapsePlan2').collapse('hide')
@@ -2809,67 +2988,63 @@
 
                     // combined
 
-                    $('com_PremiumPlan1').on('change', function(e) {
+                    $('#com_PremiumPlan1').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan1').collapse('show')
-                            $('com_PremiumCoverPlan2').collapse('hide')
+                            $('#com_PremiumCoverPlan1').collapse('show')
+                            $('#com_PremiumCoverPlan2').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan2').on('change', function(e) {
+                    $('#com_PremiumPlan2').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan1').collapse('hide')
-                            $('com_PremiumCoverPlan2').collapse('show')
+                            $('#com_PremiumCoverPlan1').collapse('hide')
+                            $('#com_PremiumCoverPlan2').collapse('show')
                         }
                     })
 
-                    $('com_PremiumPlan3').on('change', function(e) {
+                    $('#com_PremiumPlan3').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan3').collapse('show')
-                            $('com_PremiumCoverPlan4').collapse('hide')
+                            $('#com_PremiumCoverPlan3').collapse('show')
+                            $('#com_PremiumCoverPlan4').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan4').on('change', function(e) {
+                    $('#com_PremiumPlan4').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan4').collapse('show')
-                            $('com_PremiumCoverPlan3').collapse('hide')
+                            $('#com_PremiumCoverPlan4').collapse('show')
+                            $('#com_PremiumCoverPlan3').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan5').on('change', function(e) {
+                    $('#com_PremiumPlan5').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan5').collapse('show')
-                            $('com_PremiumCoverPlan6').collapse('hide')
+                            $('#com_PremiumCoverPlan5').collapse('show')
+                            $('#com_PremiumCoverPlan6').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan6').on('change', function(e) {
+                    $('#com_PremiumPlan6').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan5').collapse('show')
-                            $('com_PremiumCoverPlan6').collapse('hide')
+                            $('#com_PremiumCoverPlan5').collapse('show')
+                            $('#com_PremiumCoverPlan6').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan7').on('change', function(e) {
+                    $('#com_PremiumPlan7').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan7').collapse('show')
-                            $('com_PremiumCoverPlan8').collapse('hide')
+                            $('#com_PremiumCoverPlan7').collapse('show')
+                            $('#com_PremiumCoverPlan8').collapse('hide')
                         }
                     })
 
-                    $('com_PremiumPlan8').on('change', function(e) {
+                    $('#com_PremiumPlan8').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_PremiumCoverPlan8').collapse('show')
-                            $('com_PremiumCoverPlan7').collapse('hide')
+                            $('#com_PremiumCoverPlan8').collapse('show')
+                            $('#com_PremiumCoverPlan7').collapse('hide')
                         }
                     })
 
-                    // $("#addtable").on('click', function() {
-                    //     addRow("autotable");
-                    //     calculateTotalPremium();
-                    // })
-                    // calculateTotalPremium();
+
 
                     $("#deletetablerow").on('click', function() {
                         deleteRow("autotable")
@@ -2888,13 +3063,13 @@
                     var multiply_by_people = 1;
 
                     function goToPayment() {
+
                         var target = $('#nav-payment-tab');
                         target.removeClass('disabled');
                         // opening tab
                         target.trigger('click');
                         // scrolling into view
                         target[0].scrollIntoView(true);
-
                         var table = $('#autotable')
                         var tableData = []
 
@@ -2903,7 +3078,7 @@
                                 Surname = $tds.eq(1).children().val(),
                                 OtherName = $tds.eq(2).children().val(),
                                 Dob = '9/8/2021',
-                                Gender = $tds.eq(4).text(),
+                                Gender = 'male',
                                 nrc = $tds.eq(5).text(),
                                 Premium = $tds.eq(6).text(),
                                 Sum = $tds.eq(7).text();
@@ -2915,8 +3090,8 @@
                             var date = $tds.eq(3).children().children()
                             var finalDate = date
 
-                            if (finalDate[0] != undefined)
-                                console.log(finalDate[0].value);
+                            // if (finalDate[0] != undefined)
+                            //     console.log(finalDate[0]);
 
                             tableData.push({
                                 Covered,
@@ -2928,11 +3103,69 @@
                                 Premium,
                                 Sum
                             })
+
+                            // tableData
+
                             // do something with productId, product, Quantity
                         });
 
                         // console.log(tableData);
 
+                        var processForm2 = document.getElementById('processInfo');
+
+                        tableData.forEach((element, index) => {
+                            var CoveredInput = document.createElement('input');
+                            var SurnameInput = document.createElement('input');
+                            var OtherNameInput = document.createElement('input');
+                            var DobInput = document.createElement('input');
+                            var GenderInput = document.createElement('input');
+                            var nrcInput = document.createElement('input');
+                            var PremiumInput = document.createElement('input');
+                            var SumInput = document.createElement('input');
+
+                            CoveredInput.type = 'hidden';
+                            CoveredInput.name = 'covered[]';
+                            CoveredInput.value = element.Covered;
+                            processForm2.appendChild(CoveredInput);
+
+                            SurnameInput.type = 'hidden';
+                            SurnameInput.name = 'surname[]';
+                            SurnameInput.value = element.Surname;
+                            processForm2.appendChild(SurnameInput);
+
+                            OtherNameInput.type = 'hidden';
+                            OtherNameInput.name = 'othername[]';
+                            OtherNameInput.value = element.OtherName;
+                            processForm2.appendChild(OtherNameInput);
+
+                            DobInput.type = 'hidden';
+                            DobInput.name = 'dob[]';
+                            DobInput.value = element.Dob;
+                            processForm2.appendChild(DobInput);
+
+                            GenderInput.type = 'hidden';
+                            GenderInput.name = 'gender[]';
+                            GenderInput.value = element.Gender;
+                            processForm2.appendChild(GenderInput);
+
+                            nrcInput.type = 'hidden';
+                            nrcInput.name = 'nrc1[]';
+                            nrcInput.value = element.nrc;
+                            processForm2.appendChild(nrcInput);
+
+                            PremiumInput.type = 'hidden';
+                            PremiumInput.name = 'premium[]';
+                            PremiumInput.value = element.Premium;
+                            processForm2.appendChild(PremiumInput);
+
+                            SumInput.type = 'hidden';
+                            SumInput.name = 'suminput[]';
+                            SumInput.value = element.Sum;
+                            processForm2.appendChild(SumInput);
+
+                            var br = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                            processForm2.appendChild(br);
+                        });
                         // multiply_by_people = total_beneficiaries;
                         // alert(multiply_by_people)
                     }
@@ -2956,7 +3189,6 @@
 
                         var data = $(this).data("type")
                         arr = data.split(' ')
-                        // console.log(arr)
 
                         var processForm2 = document.getElementById('processInfo');
 
@@ -2972,8 +3204,7 @@
                             processForm2.appendChild(br);
                         });
 
-                        // console.log(arr);
-
+                        console.log(arr);
                         cover_type_selected = arr[0];
                         plan_type_selected = arr[1];
                         policy_type_selected = arr[2];
@@ -3088,7 +3319,7 @@
                             cell9.appendChild(user_sum_Div);
 
                             // Add 10 manadatory rows if group is selected
-                            for (i = 0; i < 10; i++) {
+                            for (i = 0; i < 9; i++) {
                                 addRow("autotable");
                             }
 
@@ -3175,7 +3406,7 @@
                         //                                 </div>
                         //                             </div>
                         //                         `)
-                        // console.log(multiply_by_people)
+                        console.log(multiply_by_people)
                         $("#ordersummarycoverassured").append(`
                                                     <div style="padding:5px;">
                                                         <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
@@ -3464,20 +3695,23 @@
                     var total_premuim = 0;
 
                     function removeTotalPremium(premium) {
-                        // Get the amount of premium and put it in the variable $primium below...
-                        // var premium = 10;
                         // Get total policy beneficiaries...
                         total_beneficiaries--;
-
-                        total_premuim = parseInt(premium) * total_beneficiaries;
-                        console.log(total_beneficiaries);
+                        total_premuim = parseInt(premium) * (total_beneficiaries + 1);
+                        // console.log(total_beneficiaries);
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
                     }
 
                     function removeRow(btn) {
-                        var removeBtn = document.getElementById('autotable');
-                        removeBtn.deleteRow(btn.parentNode.parentNode.rowIndex);
-                        removeTotalPremium(premium_amount_selected);
+                        var top10_index = btn.parentNode.parentNode.rowIndex;
+                        if (top10_index < 11) {
+                            alert("You cannot have less than 10 persons covered under the group policy");
+                        } else {
+                            var removeBtn = document.getElementById('autotable');
+                            removeBtn.deleteRow(btn.parentNode.parentNode.rowIndex);
+                            removeTotalPremium(premium_amount_selected);
+                        }
+
                     }
 
 
