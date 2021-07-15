@@ -194,45 +194,48 @@ class Appointment extends CI_Controller
         //     array_push($TableDataArr, $suminput);
         // }
 
-       
+        if ($this->input->post("airtel_number", true) != NULL) {
+            $this->session->set_userdata([
+                'last_name' => $this->input->post("last_name", true),
+                'other_name' => $this->input->post("other_name", true),
+                'postalAddress' => $this->input->post("postalAddress", true),
+                'physicalAddress' => $this->input->post("physicalAddress", true),
+                'emailAddress' => $this->input->post("emailAddress", true),
+                'phoneNumber' => $this->input->post("phoneNumber", true),
+                'date1' => $this->input->post("date1", true),
+                'nrc' => $this->input->post("nrc", true),
+                'occupations' => $this->input->post("occupations", true),
+                'gender1' => $this->input->post("gender1", true),
+                'policy_type' => $this->input->post("2", true),
+                'plan_id' => $this->input->post("6", true),
+                'plan_code' => $this->input->post("7", true),
+                'premium' => $this->input->post("5", true),
+                'sumasured' => $this->input->post("4", true),
+                'paymentId' => $this->input->post("id", true),
+                'recharge' => $this->input->post("recharge", true),
+                'phone_no' => $this->input->post("airtel_number", true),
+                'total' => $this->input->post("total", true),
+            ]);
+        }
 
-        $this->session->set_userdata([
-            'last_name' => $this->input->post("last_name", true),
-            'other_name' => $this->input->post("other_name", true),
-            'postalAddress' => $this->input->post("postalAddress", true),
-            'physicalAddress' => $this->input->post("physicalAddress", true),
-            'emailAddress' => $this->input->post("emailAddress", true),
-            'phoneNumber' => $this->input->post("phoneNumber", true),
-            'date1' => $this->input->post("date1", true),
-            'nrc' => $this->input->post("nrc", true),
-            'occupations' => $this->input->post("occupations", true),
-            'gender1' => $this->input->post("gender1", true),
-            'policy_type' => $this->input->post("2", true),
-            'plan_id' => $this->input->post("5", true),
-            'plan_code' => $this->input->post("6", true),
-            'premium' => $this->input->post("4", true),
-            'sumasured' => $this->input->post("5", true),
-            'paymentId' => $this->input->post("id", true),
-            'recharge' => $this->input->post("recharge", true),
-            // 'tableData' => $TableDataArr,
-        ]);
-
-        $phone_no  = $this->input->post("airtel_number", true);
+        $phone_no  = $this->session->userdata("phone_no");
         $reference = $phone_no . date("his");
+
+        // var_dump($phone_no);
 
         $soap_request = '<?xml version="1.0" encoding="UTF-8"?>
                             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:kon="http://konik.cgrate.com">
                                 <soapenv:Header>
                                     <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                                         <wsse:UsernameToken wsu:Id="UsernameToken-1" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-                                        <wsse:Username>1521182044029</wsse:Username>
-                                        <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">P5oh5Xsj</wsse:Password>
+                                        <wsse:Username>1404370669353</wsse:Username>
+                                        <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">VdGGDo6I</wsse:Password>
                                         </wsse:UsernameToken>
                                     </wsse:Security>
                             </soapenv:Header>
                             <soapenv:Body>
                                 <kon:processCustomerPayment>
-                                    <transactionAmount>' . 1 . '</transactionAmount>
+                                    <transactionAmount>' . $this->session->userdata('total') . '</transactionAmount>
                                     <customerMobile>' . $phone_no . '</customerMobile>
                                         <paymentReference>' . $reference . '</paymentReference>
                                     </kon:processCustomerPayment>
@@ -384,7 +387,7 @@ class Appointment extends CI_Controller
                     'employer_id'   => 0,
                     'benf_relation_id' => $customerIdRow[0]->id,
                     'beneficiary_name' => $created_date,
-                    'beneficiary_name' =>$rows->surname . +" " . +$rows->othername,
+                    'beneficiary_name' => $rows->surname . +" " . +$rows->othername,
                     'beneficiary_nrc' => $rows->nrc,
                     'beneficiary_mobile_no' => $this->session->userdata('phoneNumber'),
                     'beneficiary_address' => $this->session->userdata('physicalAddress'),
@@ -644,9 +647,9 @@ class Appointment extends CI_Controller
                             Back
                         </button>
 
-                        <button type="submit" id="paymentError" class="ui orange button">
+                        <a href=' . base_url("website/appointment/mobile") . ' id="paymentError" class="ui orange button">
                             Retry again
-                        </button>
+                        </a>
                     </div>
                     ' . form_close() . '
                 </div>
@@ -662,8 +665,8 @@ class Appointment extends CI_Controller
           <soapenv:Header>
               <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                  <wsse:UsernameToken wsu:Id="UsernameToken-1" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-                    <wsse:Username>1521182044029</wsse:Username>
-                    <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">P5oh5Xsj</wsse:Password>
+                    <wsse:Username>1404370669353</wsse:Username>
+                    <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">VdGGDo6I</wsse:Password>
                  </wsse:UsernameToken>
               </wsse:Security>
         </soapenv:Header>
@@ -705,5 +708,592 @@ class Appointment extends CI_Controller
         //$transactionStatus = strip_tags($output);
 
         return $transactionStatus;
+    }
+
+    public function getPayAsGoIndividual()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->not_like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'PAY AS')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+            // var_dump($planrow);
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+            <div class='card-body'>
+
+                <h5 style='color:#3b3b3b'>
+                    $PlanName
+                </h5>
+
+                <ul class='list-group list-group-flush'>
+                    <li class='list-group-item'>
+                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                            Sum assured <strong style='color:teal; font-size:19px'>K
+                            $f_sum_assured
+                            </strong>
+                        </div>
+                    </li>
+                    <li class='list-group-item'>
+                        Get Started at <strong>K
+                        $f_fixed_premium</strong>
+                    </li>
+                </ul>
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                    Cover
+                </button>
+            </div>
+            </div>";
+        }
+    }
+
+    public function getPayAsGoGroup()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'PAY AS')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                        <div class='card-body'>
+
+                        <h5 style='color:#3b3b3b'>
+                             $PlanName
+                        </h5>
+
+                        <ul class='list-group list-group-flush'>
+                             <li class='list-group-item'>
+                                    <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                            Sum assured <strong style='color:teal; font-size:19px'>K$f_sum_assured</strong>
+                                    </div>
+                            </li>
+                            <li class='list-group-item'>
+                                Get Started at <strong>K$f_fixed_premium</strong>
+                            </li>
+                        </ul>
+                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                             Cover
+                        </button>
+                    </div>
+                    </div>";
+        }
+    }
+
+    public function getPerTripCoverSingle()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->not_like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'TRIP')
+            ->not_like('plans.plan_name', 'COMBI')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                <div class='card-body'>
+
+                    <h5 style='color:#3b3b3b'>
+                        $PlanName
+                    </h5>
+
+                    <ul class='list-group list-group-flush'>
+                        <li class='list-group-item'>
+                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                Sum assured <strong style='color:teal; font-size:19px'>K
+                                $f_sum_assured
+                                </strong>
+                            </div>
+                        </li>
+                        <li class='list-group-item'>
+                            Get Started at <strong>K
+                            $f_fixed_premium</strong>
+                        </li>
+                    </ul>
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "  class='selection_btn btn btn-primary'>Select
+                        Cover
+                    </button>
+                </div>
+                </div>";
+        }
+    }
+
+    public function getPerTripCoverGroup()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'TRIP')
+            ->not_like('plans.plan_name', 'COMBI')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                <div class='card-body'>
+                        <h5 style='color:#3b3b3b'>
+                    $PlanName
+                </h5>
+
+                    <ul class='list-group list-group-flush'>
+                        <li class='list-group-item'>
+                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                Sum assured <strong style='color:teal; font-size:19px'>K
+                                $f_sum_assured
+                                </strong>
+                            </div>
+                        </li>
+                        <li class='list-group-item'>
+                            Get Started at <strong>K
+                            $f_fixed_premium</strong>
+                        </li>
+                    </ul>
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                        Cover
+                    </button>
+                </div>
+                </div>";
+        }
+    }
+    public function getWayofLifeSingle()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->not_like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'WAY')
+            ->not_like('plans.plan_name', 'COMBI')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+            <div class='card-body'>
+
+                <h5 style='color:#3b3b3b'>
+                    $PlanName
+                </h5>
+
+                <ul class='list-group list-group-flush'>
+                    <li class='list-group-item'>
+                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                            Sum assured <strong style='color:teal; font-size:19px'>K
+                            $f_sum_assured
+                            </strong>
+                        </div>
+                    </li>
+                    <li class='list-group-item'>
+                        Get Started at <strong>K
+                        $f_fixed_premium</strong>
+                    </li>
+                </ul>
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                    Cover
+                </button>
+            </div>
+            </div>";
+        }
+    }
+
+    public function getWayofLifeGroup()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'WAY')
+            ->not_like('plans.plan_name', 'COMBI')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                    <div class='card-body'>
+
+                        <h5 style='color:#3b3b3b'>
+                            $PlanName
+                        </h5>
+
+                        <ul class='list-group list-group-flush'>
+                            <li class='list-group-item'>
+                                <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                    Sum assured <strong style='color:teal; font-size:19px'>K
+                                    $f_sum_assured
+                                    </strong>
+                                </div>
+                            </li>
+                            <li class='list-group-item'>
+                                Get Started at <strong>K
+                                $f_fixed_premium</strong>
+                            </li>
+                        </ul>
+                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                            Cover
+                        </button>
+                    </div>
+                    </div>";
+        }
+    }
+
+    public function getFamilyCoverSingle()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->not_like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'FAMILY')
+            ->not_like('plans.plan_name', 'COMB')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                <div class='card-body'>
+
+                    <h5 style='color:#3b3b3b'>
+                        $PlanName
+                    </h5>
+
+                    <ul class='list-group list-group-flush'>
+                        <li class='list-group-item'>
+                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                Sum assured <strong style='color:teal; font-size:19px'>K
+                                $f_sum_assured
+                                </strong>
+                            </div>
+                        </li>
+                        <li class='list-group-item'>
+                            Get Started at <strong>K
+                            $f_fixed_premium</strong>
+                        </li>
+                    </ul>
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                        Cover
+                    </butoon>
+                </div>
+                </div>";
+        }
+    }
+
+    public function getFamilyCoverGroups()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'FAMILY')
+            ->not_like('plans.plan_name', 'COMB')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+                        <div class='card-body'>
+
+                            <h5 style='color:#3b3b3b'>
+                                $PlanName
+                            </h5>
+
+                            <ul class='list-group list-group-flush'>
+                                <li class='list-group-item'>
+                                    <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                                        Sum assured <strong style='color:teal; font-size:19px'>K
+                                        $f_sum_assured
+                                        </strong>
+                                    </div>
+                                </li>
+                                <li class='list-group-item'>
+                                    Get Started at <strong>K
+                                    $f_fixed_premium</strong>
+                                </li>
+                            </ul>
+                            <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group_family' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                                Cover
+                            </button>
+                        </div>
+                        </div>";
+        }
+    }
+
+    public function getStudentSingle()
+    {
+        $cover_benefits_id = $this->db->select("id")
+            ->from('cover_benefits')
+            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+            ->get()
+            ->result();
+
+        $product_id  = $this->db->select("id")
+            ->from('products')
+            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+            ->get()
+            ->result();
+
+        $plansList = $this->db->select("plans.plan_code,plans.plan_name,plan_id,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
+            ->from('plan_dependents')
+            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
+            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
+            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
+            ->not_like('cover_types.title', 'GROUP')
+            ->like('plans.product_id', $product_id[0]->id)
+            ->like('plans.plan_name', 'DTI STUDENT')
+            ->get()
+            ->result();
+
+        // var_dump($plansList);
+
+        foreach ($plansList as $planrow) {
+            $PlanName = $planrow->plan_name;
+            $Sum_assured = $planrow->sum_assured;
+            $Fixed_premium = $planrow->fixed_premium;
+            $plan_id = $planrow->plan_id;
+            $plan_code = $planrow->plan_code;
+
+            $f_sum_assured = number_format($Sum_assured);
+            $f_fixed_premium = number_format($Fixed_premium);
+
+            echo "<div class='card' style='width: 18rem; margin:5px'>
+            <div class='card-body'>
+
+                <h5 style='color:#3b3b3b'>
+                    $PlanName
+                </h5>
+
+                <ul class='list-group list-group-flush'>
+                    <li class='list-group-item'>
+                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
+                            Sum assured <strong style='color:teal; font-size:19px'>K
+                            $f_sum_assured
+                            </strong>
+                        </div>
+                    </li>
+                    <li class='list-group-item'>
+                        Get Started at <strong>K
+                        $f_fixed_premium</strong>
+                    </li>
+                </ul>
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                    Cover
+                </button>
+            </div>
+            </div>";
+        }
     }
 }

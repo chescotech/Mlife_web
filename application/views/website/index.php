@@ -44,8 +44,8 @@
 
     <!-- /.appointment block -->
 
-    <!-- <?php @$this->load->view('website/includes/footer'); ?> -->
     <!-- ./footer -->
+    <?php @$this->load->view('website/includes/footer'); ?>
     <!-- ./sub footer -->
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

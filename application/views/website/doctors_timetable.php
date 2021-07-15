@@ -4,72 +4,80 @@
 
 
 
-                    <style>
-                        .coveredPersonTable {
-                            color: #3b3b3b
-                        }
+    <style>
+        .coveredPersonTable {
+            color: #3b3b3b
+        }
 
-                        .my_table {
-                            
-                            color: white;
-                        }
+        .my_table {
 
-                        table td{
-                            color: white;
-                        }
-                        th{
-                            color: #5B9B94;
-                        }
+            color: white;
+        }
 
-                        .center_table {
-                            padding: 50px;
-                            background-color: #304060;
-                        }
-                    </style>
-                    <div style="background-color:#304060; height:40px"> </div>
+        .my_table table td {
+            color: white;
+        }
 
-                    <div style="padding:10px 10px 10px 90px; background-color:#4E5C77; color : white"> 
-                        <?php 
-                            $agent_id = $this->session->userdata('agent_id');
-                            echo "<h3>Commission Report For <b>". $this->session->userdata('agent_fullname')."</b></h3>";
-                        ?>
-                    </div>
+        th {
+            color: #5B9B94;
+        }
 
+        .center_table {
+            padding: 50px;
+            background-color: #304060;
+        }
+    </style>
+    <div style="background-color:#304060; height:40px"> </div>
 
-                    <div class="center_table">
+    <div style="padding:10px 10px 10px 90px; background-color:#4E5C77; color : white">
+        <?php
+        $agent_id = $this->session->userdata('agent_id');
+        echo "<h3>Commission Report For <b>" . $this->session->userdata('agent_fullname') . "</b></h3>";
+        ?>
+    </div>
 
 
-                        <div class="col-xs-12 tab-content">
 
-                            <div class="my_table">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <table width="100%" id="example" class="datatable table table-striped table-bordered table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th> Debit Date</th>
-                                                    <th> Policy Number</th>
-                                                    <th> Agent First Name</th>
-                                                    <th> Agent Last Name</th>
-                                                    <th> Agen Code</th>
-                                                    <th> Customer First Name</th>
-                                                    <th> Customer Last Name</th>
-                                                    <th> Employer</th>
-                                                    <th> Plan Name</th>
-                                                    <th> Collection Mode</th>
-                                                    <th> Modal Premium</th>
-                                                    <th> Premium Received</th>
-                                                    <th> Commission Rate</th>
-                                                    <th> Commission (ZMW)</th>
-                                                    
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+    <div class="center_table">
+    <div style='background-color: transparent'>
+        <div style="display: flex; background-color: transparent">
+            <input style="width: 150px;" type="text" class="form-control datepicker" name="dob" id="date1" placeholder="Starting date" required autocomplete="off">
+            <input style="width: 150px; margin-left:10px" type="text" class="form-control datepicker" name="dob" id="date1" placeholder="Ending date" required autocomplete="off">
+        </div>
+    </div>
 
 
-                                                <?php
+        <div class="col-xs-12 tab-content">
 
-                                                $query = $this->db->query("SELECT rec.policy_member_id, pl.policy_code AS policy_code, pl.policy_type AS policy_type,
+            <div class="my_table">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table width="100%" id="example" class="datatable table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th> Debit Date</th>
+                                    <th> Policy Number</th>
+                                    <th> Agent First Name</th>
+                                    <th> Agent Last Name</th>
+                                    <th> Agen Code</th>
+                                    <th> Customer First Name</th>
+                                    <th> Customer Last Name</th>
+                                    <th> Employer</th>
+                                    <th> Plan Name</th>
+                                    <th> Collection Mode</th>
+                                    <th> Modal Premium</th>
+                                    <th> Premium Received</th>
+                                    <th> Commission Rate</th>
+                                    <th> Commission (ZMW)</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+                                <?php
+
+                                $query = $this->db->query("SELECT rec.policy_member_id, pl.policy_code AS policy_code, pl.policy_type AS policy_type,
                                                     pm.policy_date AS 	policy_date, cs.f_name AS cs_fname, cs.l_name AS cs_lname, 
                                                     cs.nrc AS cs_nrc, cs.mobile_no AS cs_mobile, cs.c_name AS cs_cname, 
                                                     pm.member_f_name AS pm_fname, pm.member_l_name AS pm_lname, pm.gender AS pm_gender, 
@@ -102,97 +110,97 @@
                                                     and     ag.agent_id = '$agent_id'
                                                 ");
 
-                                                if ($query->num_rows()) {
-                                                    $results = $query->result_array();
-                                                    foreach ($results as $result) {
+                                if ($query->num_rows()) {
+                                    $results = $query->result_array();
+                                    foreach ($results as $result) {
 
-                                                        $policy_code = $result['policy_code'];
-                                                        $policy_type = $result['policy_type'];
-                                                        $policy_date = $result['policy_date'];
-                                                        $customer_fName = $result['cs_fname'];
-                                                        $customer_lName = $result['cs_lname'];
-                                                        $customer_nrc = $result['cs_nrc'];
-                                                        $customer_mobile = $result['cs_mobile'];
-                                                        $customer_otherName = $result['cs_cname'];
-                                                        $policy_member_fName = $result['pm_fname'];
-                                                        $policy_member_lName = $result['pm_lname'];
-                                                        $policy_member_gender = $result['pm_gender'];
-                                                        $policy_member_nrc = $result['pm_nrc'];
-                                                        $pm_employee_no = $result['employee_no'];
-                                                        $pm_employer = $result['pm_emplr'];
-                                                        $plan_name = $result['plan_name'];
-                                                        $product_title = $result['title'];
-                                                        $payment_mode = $result['pm_cmode'];
-                                                        $agent_code = $result['agent_code'];
-                                                        $agent_fName = $result['ag_fname'];
-                                                        $agent_lName = $result['ag_lname'];
+                                        $policy_code = $result['policy_code'];
+                                        $policy_type = $result['policy_type'];
+                                        $policy_date = $result['policy_date'];
+                                        $customer_fName = $result['cs_fname'];
+                                        $customer_lName = $result['cs_lname'];
+                                        $customer_nrc = $result['cs_nrc'];
+                                        $customer_mobile = $result['cs_mobile'];
+                                        $customer_otherName = $result['cs_cname'];
+                                        $policy_member_fName = $result['pm_fname'];
+                                        $policy_member_lName = $result['pm_lname'];
+                                        $policy_member_gender = $result['pm_gender'];
+                                        $policy_member_nrc = $result['pm_nrc'];
+                                        $pm_employee_no = $result['employee_no'];
+                                        $pm_employer = $result['pm_emplr'];
+                                        $plan_name = $result['plan_name'];
+                                        $product_title = $result['title'];
+                                        $payment_mode = $result['pm_cmode'];
+                                        $agent_code = $result['agent_code'];
+                                        $agent_fName = $result['ag_fname'];
+                                        $agent_lName = $result['ag_lname'];
 
-                                                        $receipt_date = $result['receipt_date'];
-                                                        $policy_code = $result['policy_code'];
-                                                        $commission_rate = $result['commission_rate'];
-                                                        $modal_premium = $result['modal_premium'];
-                                                        $premium_received = $result['premium_received'];
+                                        $receipt_date = $result['receipt_date'];
+                                        $policy_code = $result['policy_code'];
+                                        $commission_rate = $result['commission_rate'];
+                                        $modal_premium = $result['modal_premium'];
+                                        $premium_received = $result['premium_received'];
 
-                                                        $commission = $result['commission'];
-                                                        $total_commission += $commission;
+                                        $commission = $result['commission'];
+                                        $total_commission += $commission;
 
-                                                ?>
+                                ?>
 
-                                                        <tr>
-                                                            <td> <?php echo $receipt_date ?> </td>
-                                                            <td> <?php echo $policy_code ?> </td>
-                                                            <td> <?php echo $agent_fName ?> </td>
-                                                            <td> <?php echo $agent_lName ?> </td>
-                                                            <td> <?php echo $agent_code ?> </td>
-                                                            <td> <?php echo $customer_fName ?> </td>
-                                                            <td> <?php echo $customer_lName ?> </td>
+                                        <tr>
+                                            <td> <?php echo $receipt_date ?> </td>
+                                            <td> <?php echo $policy_code ?> </td>
+                                            <td> <?php echo $agent_fName ?> </td>
+                                            <td> <?php echo $agent_lName ?> </td>
+                                            <td> <?php echo $agent_code ?> </td>
+                                            <td> <?php echo $customer_fName ?> </td>
+                                            <td> <?php echo $customer_lName ?> </td>
 
-                                                            <td> <?php echo $pm_employer ?> </td>
-                                                            <td> <?php echo $plan_name ?> </td>
-                                                            <td> <?php echo $payment_mode ?> </td>
-                                                            <td> <?php echo $modal_premium ?> </td>
-                                                            <td> <?php echo $premium_received ?> </td>
-                                                            <td> <?php echo $commission_rate ?> </td>
-                                                            <td> <?php echo $commission ?> </td>
-                                                            
-                                                        </tr>
+                                            <td> <?php echo $pm_employer ?> </td>
+                                            <td> <?php echo $plan_name ?> </td>
+                                            <td> <?php echo $payment_mode ?> </td>
+                                            <td> <?php echo $modal_premium ?> </td>
+                                            <td> <?php echo $premium_received ?> </td>
+                                            <td> <?php echo $commission_rate ?> </td>
+                                            <td> <?php echo $commission ?> </td>
 
-                                                <?php
-                                                    }
-                                                } else {
-                                                    echo "NOTHING TO SHOW HERE";
-                                                }
-                                                ?>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>Total Commission (ZMW)</td>
-                                                    <th> <?php echo $total_commission ?> </th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                                        </tr>
 
-                            <div style="height: 200px;">
-
-                            </div>
-                        </div>
-
+                                <?php
+                                    }
+                                } else {
+                                    echo "NOTHING TO SHOW HERE";
+                                }
+                                ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>Total Commission (ZMW)</td>
+                                    <th> <?php echo $total_commission ?> </th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
+                </div>
+            </div>
+
+            <div style="height: 200px;">
+
+            </div>
+        </div>
+
+    </div>
 
 
 
@@ -218,5 +226,3 @@
             });
         });
     </script>
-
- 

@@ -144,49 +144,49 @@ class Lic
 
     private function verify()
     { 
-        // app in localhost
-        $localhost = $this->getprelicense();
-        if (strpos('f267d344867154b0aea800760df617d9b32f2677815a85ae4f964a4188fa', $localhost)) {
-            return false;
-        }
+        // // app in localhost
+        // $localhost = $this->getprelicense();
+        // if (strpos('f267d344867154b0aea800760df617d9b32f2677815a85ae4f964a4188fa', $localhost)) {
+        //     return false;
+        // }
 
-        // ip and domain whitelist
-        $newDomain = $this->domain_encription();
-        if (strpos($this->whitelist, $newDomain)) {
-            return false;
-        } 
+        // // ip and domain whitelist
+        // $newDomain = $this->domain_encription();
+        // if (strpos($this->whitelist, $newDomain)) {
+        //     return false;
+        // } 
 
-        //check server is alive or not
-        if (isset($_SESSION['serverAliveOrNot']) && $_SESSION['serverAliveOrNot'] == false) {
-            return false;
-        }
+        // //check server is alive or not
+        // if (isset($_SESSION['serverAliveOrNot']) && $_SESSION['serverAliveOrNot'] == false) {
+        //     return false;
+        // }
 
-        if(isset($_POST['purchase_key']) && !empty($_POST['purchase_key'])){
-            if(!$this->filterPurchaseKey($_POST['purchase_key'])){
-                $this->message = "Invalid Purchase Key!";
-                $this->html();
-            }
-        }
+        // if(isset($_POST['purchase_key']) && !empty($_POST['purchase_key'])){
+        //     if(!$this->filterPurchaseKey($_POST['purchase_key'])){
+        //         $this->message = "Invalid Purchase Key!";
+        //         $this->html();
+        //     }
+        // }
 
-        //check licence
-        if (isset($_SESSION['LicSysLog']) && @sizeof($_SESSION['LicSysLog']) > 0 && isset($_SESSION['LicSysLog']->expire_date) && isset($_SESSION['LicSysLog']->product_key) && isset($_SESSION['LicSysLog']->licence)) {
-            //call envato LicSysLog object
-            $this->envato($_SESSION['LicSysLog']);
-        } else {
+        // //check licence
+        // if (isset($_SESSION['LicSysLog']) && @sizeof($_SESSION['LicSysLog']) > 0 && isset($_SESSION['LicSysLog']->expire_date) && isset($_SESSION['LicSysLog']->product_key) && isset($_SESSION['LicSysLog']->licence)) {
+        //     //call envato LicSysLog object
+        //     $this->envato($_SESSION['LicSysLog']);
+        // } else {
 
-            //check licence server is alive or not
-            if (!$this->serverAliveOrNot()) {
-                return false;
-            }
+        //     //check licence server is alive or not
+        //     if (!$this->serverAliveOrNot()) {
+        //         return false;
+        //     }
 
-            $this->message = "Your application license has expired! <br>Contact <i><a href='https://bdtask.com/#contact' target='_blank' style='color:#f5f5f5'>bdtask.com</a></i>";
-            if (file_exists($this->log_path)) {
-                if (!$this->fileRead())
-                    $this->html($this->product_key);
-            } else {
-                $this->html($this->product_key);
-            }
-        }
+        //     $this->message = "Your application license has expired! <br>Contact <i><a href='https://bdtask.com/#contact' target='_blank' style='color:#f5f5f5'>bdtask.com</a></i>";
+        //     if (file_exists($this->log_path)) {
+        //         if (!$this->fileRead())
+        //             $this->html($this->product_key);
+        //     } else {
+        //         $this->html($this->product_key);
+        //     }
+        // }
     }
 
     private function envato($LicSysLog = array())
