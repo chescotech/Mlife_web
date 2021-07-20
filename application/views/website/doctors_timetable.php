@@ -1,65 +1,111 @@
-    <!-- Export to PDF DATATables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+<style>
+    .coveredPersonTable {
+        color: #3b3b3b
+    }
+
+    .my_table {
+
+        color: white !important;
+    }
+
+    .my_table table td {
+        color: white;
+        background-color: #304050;
+    }
+
+    th {
+        color: #5B9B94;
+    }
+
+    .center_table {
+        padding: 50px;
+        background-color: #304060;
+    }
+
+    /* Table scrolable */
+    .Table_Div {
+        height: 800px;
+        overflow: auto;
+    }
+
+    .User_Table {
+        width: 100%;
+
+        border-collapse: collapse;
+    }
+
+    .User_Table th {
+        text-align: left;
+        color: white;
+        border-right: 1px solid #ccc;
+        background-color: #394E59;
+    }
+
+    .User_Table tbody td {
+        border: 1px solid #f1f1f1;
+    }
+    button{
+        color:red;
+        background-color: #fefefe !important;
+    }
+</style>
+<div style="background-color:#304060; height:40px"> </div>
+
+<div style="padding:10px 10px 10px 90px; background-color:#4E5C77; color : white">
+    <?php
+    $agent_code = $this->session->userdata('agent_code');
+    echo "<h3>Commission Report For <b>" . $this->session->userdata('agent_fullname') . "</b></h3>";
+    // var_dump($agent_code)
+    ?>
+</div>
 
 
 
-    <style>
-        .coveredPersonTable {
-            color: #3b3b3b
-        }
-
-        .my_table {
-
-            color: white;
-        }
-
-        .my_table table td {
-            color: white;
-        }
-
-        th {
-            color: #5B9B94;
-        }
-
-        .center_table {
-            padding: 50px;
-            background-color: #304060;
-        }
-    </style>
-    <div style="background-color:#304060; height:40px"> </div>
-
-    <div style="padding:10px 10px 10px 90px; background-color:#4E5C77; color : white">
-        <?php
-        $agent_id = $this->session->userdata('agent_id');
-        echo "<h3>Commission Report For <b>" . $this->session->userdata('agent_fullname') . "</b></h3>";
-        ?>
-    </div>
-
-
-
-    <div class="center_table">
+<div class="center_table">
     <div style='background-color: transparent'>
-        <div style="display: flex; background-color: transparent">
-            <input style="width: 150px;" type="text" class="form-control datepicker" name="dob" id="date1" placeholder="Starting date" required autocomplete="off">
-            <input style="width: 150px; margin-left:10px" type="text" class="form-control datepicker" name="dob" id="date1" placeholder="Ending date" required autocomplete="off">
-        </div>
+        <form action="#" method="POST">
+            <div style="display: flex; background-color: transparent">
+                <input style="width: 150px;" type="text" class="form-control datepicker" name="from" id="date1" placeholder="Starting date" required autocomplete="off">
+                <input style="width: 150px; margin-left:10px;" type="text" class="form-control datepicker" name="to" id="date1" placeholder="Ending date" required autocomplete="off">
+                <p style="width:10px"></p>
+                <input type="submit" value="Generate Report" name="filter">
+                <p style="width:10px"></p>
+                <a href="" class="btn btn-sm btn-white">Resest</a>
+            </div>
+        </form>
+        <br>
     </div>
 
+    <?php
 
-        <div class="col-xs-12 tab-content">
 
-            <div class="my_table">
-                <div class="row">
-                    <div class="col-md-12">
-                        <table width="100%" id="example" class="datatable table table-striped table-bordered table-hover">
+    // Filter By Date
+    $date_filter = "";
+    if (isset($_POST['filter'])) {
+        $from1 = $_POST['from'];
+        $to1 = $_POST['to'];
+
+        $from = date('Y-m-d', strtotime($from1)) . " 00:00:00";
+        $to = date('Y-m-d', strtotime($to1)) . " 00:00:00";
+
+        // echo "$to and $from <br> $to1 and $from1";
+
+        $date_filter = "AND receipt_date BETWEEN '$from' AND '$to' ";
+    }
+    ?>
+
+
+    <div class="col-xs-12 tab-content">
+
+        <div class="my_table">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="Table_Div" style="overflow-x:auto;">
+                        <table width="100%" id="example" class="datatable table table-striped table-bordered table-hover User_Table">
                             <thead>
                                 <tr>
                                     <th> Debit Date</th>
-                                    <th> Policy Number</th>
-                                    <th> Agent First Name</th>
-                                    <th> Agent Last Name</th>
-                                    <th> Agen Code</th>
+                                    <th> Policy Number</th>                                    <th> Agen Code</th>
                                     <th> Customer First Name</th>
                                     <th> Customer Last Name</th>
                                     <th> Employer</th>
@@ -106,8 +152,9 @@
                                                     and 	case when rec.receipt_date >= rec.paid_upto then rec.receipt_date else rec.paid_upto end <= '2019-01-31' 
                                                     and 	rec.paid_upto > '2018-12-31' and rec.paid_upto <= '2019-01-31'
                                                     and 	rec.paid_upto >= effective_from_date and rec.paid_upto <= effective_to_date 
-                                                    and 	rec.icount >= commission_from_month and rec.icount <= commission_to_month 
-                                                    and     ag.agent_id = '$agent_id'
+                                                    and 	rec.icount >= commission_from_month and rec.icount <= commission_to_month
+                                                    $date_filter
+                                                    and     ag.agent_id = '$agent_code'
                                                 ");
 
                                 if ($query->num_rows()) {
@@ -148,10 +195,7 @@
 
                                         <tr>
                                             <td> <?php echo $receipt_date ?> </td>
-                                            <td> <?php echo $policy_code ?> </td>
-                                            <td> <?php echo $agent_fName ?> </td>
-                                            <td> <?php echo $agent_lName ?> </td>
-                                            <td> <?php echo $agent_code ?> </td>
+                                            <td> <?php echo $policy_code ?> </td>                                            <td> <?php echo $agent_code ?> </td>
                                             <td> <?php echo $customer_fName ?> </td>
                                             <td> <?php echo $customer_lName ?> </td>
 
@@ -173,10 +217,7 @@
                                 ?>
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                <tr>                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -194,35 +235,33 @@
                     </div>
                 </div>
             </div>
-
-            <div style="height: 200px;">
-
-            </div>
         </div>
 
+        <div style="height: 200px;">
+
+        </div>
     </div>
 
+</div>
+
+<script>
+    // Scrollable table
+
+    $(function() {
+        Fixed_Header();
+    });
 
 
-    <!-- Export to PDF - Datatable -->
-    <script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
-
-    <script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
-                ]
-            });
+    function Fixed_Header() {
+        // $('.User_Table thead').css({
+        //     'position': 'absolute'
+        // });
+        // var Header_Height = $('.User_Table thead').outerHeight();
+        // $('.User_Table thead').css({
+        //     'margin-top': "-" + Header_Height + "px"
+        // });
+        $('.User_Table').css({
+            'margin-top': Header_Height + "px"
         });
-    </script>
+    }
+</script>

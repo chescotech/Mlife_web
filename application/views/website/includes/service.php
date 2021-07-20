@@ -1,3 +1,14 @@
+<style>
+    .center_img_bg {
+        background-image:
+            url('assets_web/img/home_img.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+</style>
+
 <section class="grid-inner">
     <div class="container">
         <div class="row">
@@ -20,18 +31,17 @@
                 </div>
             </div>
             <!-- Benefits -->
-            <div class="col-md-4 coloumn c-box-2">
-                <div class="icon-widget">
+            <div class="col-md-4 coloumn c-box-2 center_img_bg">
+                <!-- <div class="icon-widget">
                     <i class="flaticon-world"></i>
-                </div>
+                </div> -->
                 <div class="text-content">
-                    <h3><?= (!empty($section['benefits']['title'])?$section['benefits']['title']:null)?></h3>
-                    <ul class="list-unstyled">
+                    <!-- <ul class="list-unstyled">
                         <li><i class="fa fa-caret-right"></i>Personal accident cover</li>
                         <li><i class="fa fa-caret-right"></i>Medical expenses</li>
                         <li><i class="fa fa-caret-right"></i>Emergency cash</li>
                         <li><i class="fa fa-caret-right"></i>Aid for spouse and dependent children</li>
-                    </ul>
+                    </ul>  -->
                 </div>
             </div>
             <!-- Working Hours -->

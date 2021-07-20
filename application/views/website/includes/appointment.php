@@ -1,3 +1,7 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" /> -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 <style>
     .coveredPersonTable {
         color: #3b3b3b
@@ -232,7 +236,7 @@ $Nrcs = $isNrc->result();
 
                             <!-- Modal -->
                             <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-lg">
                                     <div style="color: #3b3b3b" class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title" style="color: #3b3b3b" id="staticBackdropLabel">
@@ -242,21 +246,8 @@ $Nrcs = $isNrc->result();
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            Eligibility. This Policy covers Persons within the borders of The
-                                            Republic of Zambia which includes Zambians or Foreign nationals working
-                                            or travelling within Zambia.
-                                            Special Restrictions.
-                                            Cover for any other insured family member cannot be higher than that of
-                                            the Principal Member.
-                                            Evidence of Health. No medical evidence of health is required in order
-                                            to be eligible for the Policy
-                                            Commencement of Cover Is after the issuance of a Policy Document and the
-                                            receipt of Premium. However for Permanent Disability any entitlement to
-                                            a benefit in the event of a Road Traffic Accident of any of the insured
-                                            members will commence after a 30 days waiting period of the first
-                                            premium having been paid. The waiting period will also apply on
-                                            reinstatement of a lapsed Policy for Way of Life Cover.
-                                            Additions and deletions.
+                                            <embed src="assets_web/docs/tncs.pdf" frameborder="0" width="100%" height="600px">
+
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Understood</button>
@@ -816,7 +807,8 @@ $Nrcs = $isNrc->result();
                                                                                     </div>
                                                                                     <!-- </ul> -->
                                                                                     <?php echo "
-                                                                                    <button data-type='Combined pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium $plan_id $plan_code'
+                                                                                    <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' 
+                                                                                        data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
                                                                                         class='selection_btn btn btn-primary'>Select Cover
                                                                                     </button>
                                                                                     ";
@@ -934,10 +926,10 @@ $Nrcs = $isNrc->result();
                                                                                         </li>
                                                                                     </ul>
                                                                                     <?php echo "
-                                                                                    <button data-type='Combined pay_as_u_go premium_group $all_sums $f_fixed_premium $plan_id $plan_code'
-                                                                                        class='selection_btn btn btn-primary'>Select Cover
-                                                                                    </button>
-                                                                                    ";
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . 
+                                                                                            $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>";
                                                                                     unset($all_sums);
                                                                                     ?>
                                                                                 </div>
@@ -1124,7 +1116,7 @@ $Nrcs = $isNrc->result();
 
                                                                             echo "<div class='card' style='width: 18rem; margin:5px'>
                                                                                 <div class='card-body'>
-                        $PlanName
+                                                                                    $PlanName
                                                      
                                                                                     <h5 style='color:#3b3b3b'>
                                                                                                         </h5>
@@ -1740,10 +1732,53 @@ $Nrcs = $isNrc->result();
                                 </table>
 
                                 <div style="padding: 20px; display:flex; justify-content: space-between">
-                                    <button id="addtable" class="btn btn-primary btn-sm">
-                                        Add more
-                                    </button>
-                                    <div style="color:#3b3b3b">
+                                    <div>
+                                        <span>
+                                            <button id="addtable" class="btn btn-primary btn-sm">
+                                                One More
+                                            </button>
+                                        </span>
+                                        <button type="button" name="load_manual_data" id="load_manual_data" class="btn btn-primary btn-sm">Add Rows</button>
+                                        <span id="tcs1">
+                                            <a data-toggle="modal" data-target="#uploadexcel" id="tcs" class="btn btn-primary btn-sm">Upload a document instead</a>
+                                        </span>
+                                        <button type="button" name="load_data" id="load_data" class="btn btn-primary btn-sm">Go</button>
+
+                                        <!-- <button type="button" value="<?php echo $_SESSION['uniqid'] ?>" name="deleteCsv" id="deleteCsv" class="btn btn-primary btn-sm"> Reset </button> -->
+                                        <!-- <button onclick="deleteCsv()" class="btn btn-primary btn-sm">Reset</button> -->
+                                        <input type="hidden" value="<?php echo $_SESSION['uniqid'] ?>" name="deleteCsv" id="deleteCsv" />
+                                        <!-- file input ends here -->
+                                        <a data-toggle="modal" data-target="#staticBackdrop1" id="tcs" style="color:#fff; padding:5px; border-radius:20px; background-color:blue; cursor:pointer">How to upload</a>
+                                        <!-- <div id="employee_table"></div> -->
+
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="staticBackdrop1" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdrop1Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div style="color: #3b3b3b" class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" style="color: #3b3b3b" id="staticBackdrop1Label">
+                                                        How To Upload an Excel Document</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <!-- <embed src="assets_web/docs/tncs.pdf" frameborder="0" width="100%" height="600px"> -->
+                                                    <p>Spep 1. Download the excel document template <a href="assets_web/docs/DTI_Table_template.csv"> here. </a>
+                                                    <p>
+                                                    <p>Step 2. Fill in with the details of the Persons Covered in the exact formart as shown in the template, and save the document.</p>
+                                                    <p>Step 3. Upload the Excel document by clicking the <b>Upload an excel document instead</b> button.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Got it</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="color:#3b3b3b" id="remove_info">
                                         <p>
                                             Click on <span style="color:#fff; padding:5px; border-radius:20px; background-color:#D03238;">X</span> icon to remove any family or group member.
                                         </p>
@@ -1768,9 +1803,9 @@ $Nrcs = $isNrc->result();
 
                                 <div style="padding: 20px; right:0; display:relative; justify-content: space-between">
                                     <button onclick="goBackToCoverGrp()" class="btn btn-danger btn-sm pull-right">
-                                        << Back </button>
+                                        << Reset </button>
 
-                                            <button onclick="goToPayment()" class="btn btn-secondary btn-sm pull-right">
+                                            <button onclick="goToPayment('group')" class="btn btn-secondary btn-sm pull-right">
                                                 Next >>
                                             </button>
                                 </div>
@@ -1884,6 +1919,7 @@ $Nrcs = $isNrc->result();
 
                                                         <div style="height:70px;"></div>
 
+                                                        <div id="backToCoverBtn1"></div>
                                                         <div id="backToCoverBtn"></div>
 
                                                         <?= form_close() ?>
@@ -1942,7 +1978,17 @@ $Nrcs = $isNrc->result();
                                                     <!-- <div id="ordersummary3"></div> -->
                                                     <!-- <div id="ordersummarycover4"></div> -->
                                                     <!-- <h5 id="ordersummarycoverpay"></h5> -->
-                                                    <h5 id="ordersummarycoverassured"></h5>
+                                                    
+
+                                                    <div style="padding:5px;">
+                                                        <div style="border: none; border-top: 1px solid #A1A1A1; margin-bottom:5px"></div>
+                                                        <div style="color:green">
+                                                            <h5>Amount Payable : <span style="color:red">K <span id="totalMonthlyCost1"></span>.00</span></h5>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <!-- <h5 id="ordersummarycoverassured"></h5> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -2122,7 +2168,7 @@ $Nrcs = $isNrc->result();
                             target.trigger('click');
                             // scrolling into view
                             target[0].scrollIntoView(true);
-                            
+
                             // if (Nrc_found === true) {
                             //     nrcNumber.addClass('divError');
 
@@ -2212,19 +2258,18 @@ $Nrcs = $isNrc->result();
 
                     // Calculate total premium
                     var total_premuim = 0;
-                    var total_beneficiaries = document.getElementById("autotable").rows[0].cells.length;
+                    var total_beneficiaries = 0;
+                    total_beneficiaries = document.getElementById("autotable").rows[0].cells.length;
 
-                    function calculateTotalPremium(premium, num) {
-                        // var data = $(this).data("type");
-
+                    function calculateTotalPremium(premium) {
                         // Get total policy beneficiaries...
                         total_beneficiaries++;
-
-                        // console.log(total_beneficiaries);
-                        total_premuim = parseInt(premium) * (num);
+                        console.log('pips= ', total_beneficiaries);
+                        total_premuim = parseInt(premium) * (total_beneficiaries);
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                        document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
 
-                        console.log(total_premuim);
+                        console.log('preem= ', total_premuim);
                     }
 
                     $('#flexRadioDefault1').on('change', function(e) {
@@ -2602,9 +2647,9 @@ $Nrcs = $isNrc->result();
 
 
                     // Skip grou type and go to payment
-                    var multiply_by_people = 1;
+                    var multiply_by_people = '';
 
-                    function goToPayment() {
+                    function goToPayment(type) {
 
                         var target = $('#nav-payment-tab');
                         target.removeClass('disabled');
@@ -2710,9 +2755,12 @@ $Nrcs = $isNrc->result();
                             processForm2.appendChild(br);
                         });
 
-                        if (tableData.length > 9)
-                            multiply_by_people = tableData.length;
-
+                        if(type == 'single'){
+                            document.getElementById("totalMonthlyCost1").innerHTML = premium_amount_selected;
+                            multiply_by_people = 1;
+                        }else if(type == 'group') {
+                            multiply_by_people = 0;
+                        }
                         var total = premium_amount_selected * multiply_by_people
 
                         var TotalInput = document.createElement('input');
@@ -2752,8 +2800,9 @@ $Nrcs = $isNrc->result();
                         $("#ordersummarytype").children("div").remove();
                         $("#ordersummarycoverassured").children("div").remove();
                         $("#backToCoverBtn").children("div").remove();
+                        $("#backToCoverBtn1").children("div").remove();
 
-                        console.log($(identifier).data('plancode'));
+                        console.log($(identifier).data('plancode'), " <- plan-code");
 
 
 
@@ -2853,6 +2902,10 @@ $Nrcs = $isNrc->result();
                             // scrolling into view
                             target[0].scrollIntoView(true);
 
+                            // $("#autotable tr").remove(); 
+                            var Table = document.getElementById("autotable");
+                            Table.innerHTML = "";
+
                             // Add main user 
                             var table = document.getElementById('autotable');
 
@@ -2945,12 +2998,128 @@ $Nrcs = $isNrc->result();
                             cell9.appendChild(user_sum_Div);
 
                             // Add 10 manadatory rows if group is selected
-                            for (i = 0; i < 9; i++) {
+                            // for (i = 0; i < 9; i++) {
+                            //     addRow("autotable", table_type_select);
+                            // }
+                            // calculateTotalPremium(premium_amount_selected, 11);
+
+                            // Append excel doc data to table
+                            // var excel_data = document.getElementById('excel_data').value;
+                            $('#load_manual_data').show(); //show btn
+                            $('#addtable_csv').show(); // show btn
+                            $('#tcs1').show();
+                            $('#load_data').show();
+                            $('#remove_info').show();
+                            
+                            var employee_data = '';
+                            $(document).ready(function() {
+                                $('#load_data').click(function() {
+                                        var uniqid = $('#deleteCsv').val();
+                                        $.ajax({
+                                            url: "assets_web/docs/excel/" + uniqid + ".csv",
+                                            dataType: "text",
+                                            success: function(data) {
+                                                employee_data = data.split(/\r?\n|\r/);
+                                                // Validate to set minimum to 10
+                                                if (employee_data.length < 11) {
+                                                    alert('You cannot have less than 10 persons covered under the group policy.Add more members in the cvs documnet and reupload');
+                                                } else {
+                                                    var table_data = ''; //'<table class="table table-bordered table-striped">';
+                                                    for (var count = 0; count < employee_data.length; count++) {
+                                                        var cell_data = employee_data[count].split(",");
+                                                        cell_data.push(premium_amount_selected, sum_assured_selected)
+                                                        console.log(premium_amount_selected, sum_assured_selected)
+                                                        table_data += '<tr>';
+                                                        for (var cell_count = 0; cell_count < cell_data.length; cell_count++) {
+                                                            if (count === 0) {
+                                                                // table_data += '<th>' + cell_data[cell_count] + '</th>';
+                                                            } else {
+                                                                table_data += '<td>' + cell_data[cell_count] + '</td>';
+                                                            }
+                                                        }
+                                                        // table_data += '<td>' + premium_amount_selected + '</td> <td>' + sum_assured_selected + '</td> </tr>';
+                                                        table_data += '</tr>';
+                                                    }
+
+                                                }
+                                                // table_data += '</table>';
+                                                console.log(employee_data.length + "total rows");
+
+                                                $('#employee_table').html(table_data);
+                                                tabb = document.getElementById("autotable").rows[0].cells.length;
+                                                $('#autotable').append(table_data);
+                                                // tabb.append(table_data);// Calculate premium
+                                                total_premuim = parseInt(premium_amount_selected) * (employee_data.length - 1);
+                                                document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                                                document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
+                                                // calculateTotalPremium(premium_amount_selected); 
+                                                $('#load_manual_data').hide(); //Hide btn
+                                                $('#addtable_csv').show(); // Hide btn
+                                                $('#tcs1').hide();
+                                                $('#load_data').hide();
+                                                $('#remove_info').hide();
+                                            },
+                                            error: function(data) {
+                                                // $('#employee_table').html('<br><h1>HELLOE </h1><br>');
+                                                console.log('no file')
+                                            }
+                                        });
+                                    }),
+                                    $('#deleteCsv').click(function() {
+                                        var uniqid = $('#deleteCsv').val();
+                                        // alert(uniqid);
+                                        $.ajax({
+                                            url: '',
+                                            type: 'post',
+                                            data: {
+                                                uniqid: uniqid
+                                            },
+                                            success: function(response) {
+
+                                                // Changing image source when remove
+                                                if (response == 1) {
+                                                    // $("#img_" + id).attr("src","images/noimage.png");
+                                                }
+                                            },
+                                            error: function(response) {
+                                                alert('Cant find php file')
+                                            }
+                                        });
+                                    });
+
+                            });
+                            var total_people = (employee_data.length - 1)
+                            $("#addtable_csv").on('click', function() {
                                 addRow("autotable", table_type_select);
-                            }
 
-                            calculateTotalPremium(premium_amount_selected, 11);
+                                total_people++;
+                                total_premuim = parseInt(premium_amount_selected) * total_people;
+                                document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                                document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
+                            })
 
+                            $('#addtable').hide();
+                            $('#addtable_csv').hide();
+                            $(document).ready(function() {
+                                $('#load_manual_data').click(function() {
+                                    // if ($('#load_manual_data').val() == 1) {
+                                    //     $('.load_manual_data').hide();
+                                    //     return;
+                                    // } else {
+                                    //     $('.load_manual_data').show()
+                                    // }
+                                    $('#addtable').show();
+                                    $('#load_manual_data').hide();
+                                    $('#tcs1').hide();
+                                    $('#load_data').hide();
+
+                                    for (i = 0; i < 9; i++) {
+                                        addRow("autotable", table_type_select);
+                                    }
+                                    calculateTotalPremium(premium_amount_selected);
+
+                                });
+                            });
 
 
                         } else if (policy_type_selected === 'premium_group_family') {
@@ -3058,41 +3227,160 @@ $Nrcs = $isNrc->result();
                             cell9.appendChild(user_sum_Div);
 
                             // Add 10 manadatory rows if group is selected
-                            for (i = 0; i < 9; i++) {
+                            // for (i = 0; i < 9; i++) {
+                            //     addRow("autotable", table_type_select);
+                            // }
+                            // calculateTotalPremium(premium_amount_selected);
+
+                            var employee_data = '';
+                            $(document).ready(function() {
+                                $('#load_data').click(function() {
+                                        var uniqid = $('#deleteCsv').val();
+                                        $.ajax({
+                                            url: "assets_web/docs/excel/" + uniqid + ".csv",
+                                            dataType: "text",
+                                            success: function(data) {
+                                                employee_data = data.split(/\r?\n|\r/);
+                                                // Validate to set minimum to 10
+                                                if (employee_data.length < 11) {
+                                                    alert('You cannot have less than 10 persons covered under the group policy.Add more members in the cvs documnet and reupload');
+                                                } else {
+                                                    var table_data = ''; //'<table class="table table-bordered table-striped">';
+                                                    for (var count = 0; count < employee_data.length; count++) {
+                                                        var cell_data = employee_data[count].split(",");
+                                                        cell_data.push(premium_amount_selected, sum_assured_selected)
+                                                        console.log(premium_amount_selected, sum_assured_selected)
+                                                        table_data += '<tr>';
+                                                        for (var cell_count = 0; cell_count < cell_data.length; cell_count++) {
+                                                            if (count === 0) {
+                                                                // table_data += '<th>' + cell_data[cell_count] + '</th>';
+                                                            } else {
+                                                                table_data += '<td>' + cell_data[cell_count] + '</td>';
+                                                            }
+                                                        }
+                                                        // table_data += '<td>' + premium_amount_selected + '</td> <td>' + sum_assured_selected + '</td> </tr>';
+                                                        table_data += '</tr>';
+                                                    }
+
+                                                }
+                                                // table_data += '</table>';
+                                                console.log(employee_data.length + "total rows");
+
+                                                $('#employee_table').html(table_data);
+                                                tabb = document.getElementById("autotable").rows[0].cells.length;
+                                                $('#autotable').append(table_data);
+                                                // tabb.append(table_data);// Calculate premium
+                                                total_premuim = parseInt(premium_amount_selected) * (employee_data.length - 1);
+                                                document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                                                document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
+                                                // calculateTotalPremium(premium_amount_selected); 
+                                                $('#load_manual_data').hide(); //Hide btn
+                                                $('#addtable_csv').show(); // Hide btn
+                                                $('#tcs1').hide();
+                                                $('#load_data').hide();
+                                                $('#remove_info').hide();
+                                            },
+                                            error: function(data) {
+                                                // $('#employee_table').html('<br><h1>HELLOE </h1><br>');
+                                                console.log('no file')
+                                            }
+                                        });
+                                    }),
+                                    $('#deleteCsv').click(function() {
+                                        var uniqid = $('#deleteCsv').val();
+                                        // alert(uniqid);
+                                        $.ajax({
+                                            url: '',
+                                            type: 'post',
+                                            data: {
+                                                uniqid: uniqid
+                                            },
+                                            success: function(response) {
+
+                                                // Changing image source when remove
+                                                if (response == 1) {
+                                                    alert('Worked');
+                                                    // $("#img_" + id).attr("src","images/noimage.png");
+                                                }
+                                            },
+                                            error: function(response) {
+                                                alert('Cant find php file')
+                                            }
+                                        });
+                                    });
+
+                            });
+                            var total_people = (employee_data.length - 1)
+                            $("#addtable_csv").on('click', function() {
                                 addRow("autotable", table_type_select);
-                            }
 
-                            calculateTotalPremium(premium_amount_selected, 11);
+                                total_people++;
+                                total_premuim = parseInt(premium_amount_selected) * total_people;
+                                document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                                document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
+                            })
 
+                            $('#addtable').hide();
+                            $('#addtable_csv').hide();
+                            $(document).ready(function() {
+                                $('#load_manual_data').click(function() {
+                                    // if ($('#load_manual_data').val() == 1) {
+                                    //     $('.load_manual_data').hide();
+                                    //     return;
+                                    // } else {
+                                    //     $('.load_manual_data').show()
+                                    // }
+                                    $('#addtable').show();
+                                    $('#load_manual_data').hide();
+                                    $('#tcs1').hide();
+                                    $('#load_data').hide();
+
+                                    for (i = 0; i < 9; i++) {
+                                        addRow("autotable", table_type_select);
+                                    }
+                                    calculateTotalPremium(premium_amount_selected);
+
+                                });
+                            });
 
 
                         } else {
 
-                            goToPayment();
+                            goToPayment('single');
 
                         }
 
-                        // console.log(arr);
+                        console.log('policy tupe = ', policy_type_selected);
 
                         // var premium = premium_amount_selected;
                         $("#addtable").on('click', function() {
                             addRow("autotable", table_type_select);
 
                             var tableCount = document.getElementById('autotable');
-                            calculateTotalPremium(premium_amount_selected, tableCount.length);
+                            calculateTotalPremium(premium_amount_selected);
                         })
 
 
-
-                        // Add Back BTN
+                        if(policy_type_selected === 'premium_per_individual_single'){
+                            // Add Back BTN
+                            $("#backToCoverBtn1").append(`                     
+                                                <div id="backToCoverBtnId1" class="btn btn-block btn-warning">
+                                                    Back To Cover
+                                                </div>
+                                                `)
+                        }
+                        
                         $("#backToCoverBtn").append(`                     
-                                                <div id="backToCoverBtnId" class="btn btn-block btn-warning">
-                                                    Back to Cover Type
+                                                <div id="resetTransaction" class="btn btn-block btn-danger">
+                                                    Restart Transaction
                                                 </div>
                                                 `)
 
-                        $("#backToCoverBtnId").on('click', function() {
-                            goBackToCover();
+                        $("#backToCoverBtnId1").on('click', function() {
+                            goBackToCover1();
+                        })
+                        $("#resetTransaction").on('click', function() {
+                            resetTransaction();
                         })
 
 
@@ -3167,7 +3455,10 @@ $Nrcs = $isNrc->result();
 
                     })
 
-                    function goBackToCover() {
+                    function resetTransaction() {
+                        location.assign(location.href.split('#')[0]);
+                    }
+                    function goBackToCover1() {
                         var target = $('#nav-profile-tab');
                         target.removeClass('disabled');
                         // Disable group tab
@@ -3178,9 +3469,10 @@ $Nrcs = $isNrc->result();
                         // scrolling into view
                         target[0].scrollIntoView(true);
 
-                        total_beneficiaries--;
+                        // total_beneficiaries--;
                         // reset table and table and premium
                         $("table").children().remove()
+                        // location.assign(location.href.split('#')[0]);
                         total_premuim = 2 * 0;
                         premium_amount_selected = total_premuim;
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
@@ -3436,12 +3728,15 @@ $Nrcs = $isNrc->result();
                         target.trigger('click');
                         // scrolling into view
                         target[0].scrollIntoView(true);
-
-                        total_beneficiaries--;
+                        console.log("tottal bene ", total_beneficiaries)
+                        total_beneficiaries = 0;
                         // reset table and table and premium
                         $("table").children().remove()
+                        // window.location.reload()
+                        location.assign(location.href.split('#')[0]);
                         total_premuim = 2 * 0;
                         premium_amount_selected = total_premuim;
+                        console.log("tottal bene 2 ", total_beneficiaries)
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
                     }
 
@@ -3451,10 +3746,10 @@ $Nrcs = $isNrc->result();
                     function removeTotalPremium(premium) {
                         // Get total policy beneficiaries...
                         total_beneficiaries--;
-                        total_premuim = parseInt(premium) * (total_beneficiaries + 1);
-                        // console.log(total_beneficiaries);
-                        premium_amount_selected = total_premuim;
+                        total_premuim = parseInt(premium) * (total_beneficiaries);
+                        console.log(total_beneficiaries - premium);
                         document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                        document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
                     }
 
                     function removeRow(btn) {

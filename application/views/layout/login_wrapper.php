@@ -85,7 +85,7 @@ $settings = $this->db->select("site_align")
                 <div class="panel-heading">
                     <div class="view-header">
                         <div class="header-icon">
-                            <img src="assets_web/img/mlifelogo.png" style="width:20%" class="img-responsive">
+                            <img src="assets_web/img/mlifelogo.png" style="width:90%" class="img-responsive">
                         </div>
                         <div class="header-title">
                             <!-- <h3>Madison Domestic Travel</h3> -->

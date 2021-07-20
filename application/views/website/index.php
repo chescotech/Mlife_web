@@ -31,12 +31,21 @@
     <!-- <link href="<?= base_url('assets_web/font/flaticon.css') ?>" type="text/css" rel="stylesheet"> -->
     <link href="<?= base_url('assets_web/vendor/bs-stepper/css/bs-stepper.css') ?>" type="text/css" rel="stylesheet" media="all">
 
+    <!-- Export to PDF DATATables -->
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css"> -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+    
 </head>
 
 <body>
     <!-- header -->
     <?php @$this->load->view('website/includes/header'); ?>
     <!-- /.Main header -->
+
+    <?php 
+        $uniqid = "rand(1,90000)"; 
+        $_SESSION['uniqid'] = $uniqid;
+    ?>
 
     <!-- main content -->
     <?php echo (!empty($content) ? $content : null) ?>
@@ -131,6 +140,122 @@
 
         });
     </script>
+
+        <!-- Export to PDF - Datatable -->
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
+        });
+    </script>
+
 </body>
+
+
+
+
+
+<!-- uploadecel Modal -->
+<div class="modal fade" id="uploadexcel" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdrop1Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div style="color: #3b3b3b" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: #3b3b3b" id="staticBackdrop1Label">
+                    Upload a Valid .csv Document</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Upload EXCEL DOC... -->
+                <?php
+
+                $file_formats = array("csv");
+                $filepath = "assets_web/docs/excel/";
+                $_SESSION['filepath'] = $filepath;
+
+                if (isset($_POST['submitbtn']) && $_POST['submitbtn']=="Submit") {
+
+                    $name = $_FILES['imagefile']['name']; // filename to get file's extension
+                    $size = $_FILES['imagefile']['size'];                    
+                    
+                    if (strlen($name)) {
+                        $extension = substr($name, strrpos($name, '.')+1);
+                        if (in_array($extension, $file_formats)) { // check it if it's a valid format or not
+                            if ($size < (8048 * 1024)) { // check it if it's bigger than 2 mb or no
+                                
+                                $full_file = $filepath . $uniqid.'.csv';
+                                $tmp = $_FILES['imagefile']['tmp_name'];
+                                    if (move_uploaded_file($tmp, $full_file)) {
+                                        // echo '<img class="preview" alt="" src="'.$filepath.'/img.jpg" />';
+                                        // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
+                                        echo "<script>alert('File uploaded successfully.')</script>";
+                                    } else {
+                                        echo "<script>alert('Could not move the file.')</script>";
+                                        // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
+                                    }
+                            } else {
+                                echo "<script>alert('Your file is too large. Maximum size allowed is 8MB.')</script>";
+                            }
+                        } else {
+                                echo "<script>alert('Invalid file format. Please upload a valid .csv file')</script>";
+                        }
+                    } else {
+                        echo "<script>alert('Please select a .csv file..!')</script>";
+                    }
+                    die();
+                }
+                
+            ?>
+            <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.js"></script>
+            <script type="text/javascript" >
+                $(document).ready(function() {
+                    $('#submitbtn').click(function() {
+                        $("#viewimage").html('');
+                        $("#viewimage").html('<img src="img/loading.gif" />');
+                        $(".uploadform").ajaxForm({
+                            target: '#viewimage'
+                        }).submit();
+                    });
+                });
+            </script> 
+            <!-- <h2> <img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive"> </h2> -->
+ 
+            <form class="uploadform" method="post" enctype="multipart/form-data" action=''>
+                Upload your image <input type="file" name="imagefile" />
+				<input type="submit" value="Submit" name="submitbtn" id="submitbtn">
+			</form>
+			
+            <input type='hidden' id='viewimage' >
+                <!-- Finish uploading doc -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end uploadecel Modal -->
+
+
+
+
+
 
 </html>
