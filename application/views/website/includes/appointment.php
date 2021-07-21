@@ -1002,69 +1002,100 @@ $Nrcs = $isNrc->result();
                                                                         <?php
 
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'COMBINED INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->not_like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI INDIVIDUAL ONE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
+                                                                                GROUP BY plan_name
+                                                                            ");
 
-                                                                        // var_dump($plansList);
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                            <div class='card-body'>
+                                                                                $results_details = $plansList_details->result_array();
+                                                                        ?>
+                                                                                <div class='card' style='width: 18rem; margin:5px'>
+                                                                                    <div class='card-body' style='color:#3b3b3b'>
 
-                                                                                <h5 style='color:#3b3b3b'>
-                                                                                    $PlanName
-                                                                                </h5>
+                                                                                        <h6>
+                                                                                            <b><?php echo $PlanName ?></b>
+                                                                                        </h6>
 
-                                                                                <ul class='list-group list-group-flush'>
-                                                                                    <li class='list-group-item'>
-                                                                                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                            Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                            $f_sum_assured
+                                                                                        <!-- <ul class='list-group list-group-flush'> -->
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+
+                                                                                            echo "<div>
+                                                                                                        <div>
+                                                                                                            <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                                $f_sum_assured  </strong>
+                                                                                                        </div>
+                                                                                                    </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <div>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
                                                                                         </div>
-                                                                                        </strong>
-                                                                                    </li>
-                                                                                    <li class='list-group-item'>
-                                                                                        Get Started at <strong>K
-                                                                                        $f_fixed_premium</strong>
-                                                                                    </li>
-                                                                                </ul>
-                                                                                <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
-                                                                            </div>
-                                                                            </div>";
-                                                                        }
+                                                                                        <!-- </ul> -->
+                                                                                        <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' 
+                                                                                            data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>
+                                                                                        ";
+                                                                                        ?>
+
+                                                                                        <!-- <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                            Cover
+                                                                                        </button> -->
+                                                                                    </div>
+                                                                                </div>
+                                                                        <?php
+                                                                            }
 
                                                                         ?>
-
-
-
 
                                                                     </div>
 
@@ -1079,70 +1110,105 @@ $Nrcs = $isNrc->result();
                                                                     <div class="row">
 
                                                                         <?php
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+                                                                                ->get()
+                                                                                ->result();
 
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plan_id,plans.plan_code,plans.plan_name,
+                                                                                fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                                GROUP BY plan_name
+                                                                                ");
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI INDIVIDUAL ONE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
+                                                                            if(empty($results)){
+                                                                                echo  "</br>No Data </br>";
+                                                                            }
 
-                                                                        // var_dump($plansList);
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
+                                                                                ///////////////////////////////
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plan_id,plans.plan_name,sum_assured,
+                                                                                fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                                $results_details = $plansList_details->result_array();
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
-
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                                <div class='card-body'>
-                                                                                    $PlanName
-                                                     
-                                                                                    <h5 style='color:#3b3b3b'>
-                                                                                                        </h5>
-
-                                                                                    <ul class='list-group list-group-flush'>
-                                                                                        <li class='list-group-item'>
-                                                                                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                                Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                                $f_sum_assured
-                                                                                            </div>
-                                                                                            </strong>
-                                                                                        </li>
-                                                                                        <li class='list-group-item'>
-                                                                                            Get Started at <strong>K
-                                                                                            $f_fixed_premium</strong>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover</a>
-                                                                                </div>
-                                                                                </div>";
-                                                                        }
 
                                                                         ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
 
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
 
+                                                                                    <ul class='list-group list-group-flush'>
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+                                                                                            $all_sums .= $Sum_assured . "<br>";
+
+                                                                                            // echo "<script> console.log('$all_sums')</script>";
+
+                                                                                            echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <li class='list-group-item'>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . 
+                                                                                            $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>";
+                                                                                    unset($all_sums);
+                                                                                    ?>
+                                                                                </div>
+                                                                            </div>
+                                                                        <?php
+                                                                        }
+                                                                        ?>
                                                                     </div>
 
                                                                 </div>
@@ -1165,7 +1231,7 @@ $Nrcs = $isNrc->result();
                                                     </div>
 
                                                     <!-- Way of life expantion -->
-                                                    <div class="collapse" id="collapsePlan3" aria-expanded="true">
+                                                    <div class="collapse" id="com_collapsePlan3" aria-expanded="true">
 
                                                         <div class="container">
                                                             <div>
@@ -1177,20 +1243,19 @@ $Nrcs = $isNrc->result();
                                                                 <div style="display:flex; ">
 
                                                                     <div>
-                                                                        <input class="form-check-input" type="radio" name="Premium3" id="com_PremiumPlan5">
-                                                                        <label class="form-check-label" for="PremiumPlan5">
+                                                                        <input class="form-check-input" type="radio" name="com_Premium4" id="com_PremiumPlan5">
+                                                                        <label class="form-check-label" for="com_PremiumPlan5">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
-                                                                                Monthly Premium per Individual<span style="color:#6199F5;">(Single Policy)</span>
+                                                                                Monthly Premium per Family<span style="color:#6199F5;">(Single Policy)</span>
                                                                             </strong>
                                                                         </label>
                                                                     </div>
 
                                                                     <div style="margin-left: 40px;">
-                                                                        <input class="form-check-input" type="radio" name="com_Premium3" id="com_PremiumPlan6">
+                                                                        <input class="form-check-input" type="radio" name="com_Premium4" id="com_PremiumPlan6">
                                                                         <label class="form-check-label" for="com_PremiumPlan6">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
-                                                                                Monthly Premium per Individual <span style="color:#6199F5;">(Group
-                                                                                    Policy)</span></strong>
+                                                                                Monthly Premium per Group <span style="color:#6199F5;">(min 10)</span></strong>
                                                                         </label>
                                                                     </div>
 
@@ -1203,67 +1268,102 @@ $Nrcs = $isNrc->result();
                                                                         <?php
 
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'COMBINED INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->not_like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI INDIVIDUAL WAY')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%WAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
+                                                                                GROUP BY plan_name
+                                                                            ");
 
-                                                                        // var_dump($plansList);
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
+                                                                            if(empty($results)){
+                                                                                echo  "</br>No Data </br>";
+                                                                            }
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%WAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                            <div class='card-body'>
-
-                                                                                <h5 style='color:#3b3b3b'>
-                                                                                    $PlanName
-                                                                                </h5>
-
-                                                                                <ul class='list-group list-group-flush'>
-                                                                                    <li class='list-group-item'>
-                                                                                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                            Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                            $f_sum_assured
-                                                                                        </div>
-                                                                                        </strong>
-                                                                                    </li>
-                                                                                    <li class='list-group-item'>
-                                                                                        Get Started at <strong>K
-                                                                                        $f_fixed_premium</strong>
-                                                                                    </li>
-                                                                                </ul>
-                                                                                <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
-                                                                            </div>
-                                                                            </div>";
-                                                                        }
-
+                                                                                $results_details = $plansList_details->result_array();
                                                                         ?>
+                                                                                <div class='card' style='width: 18rem; margin:5px'>
+                                                                                    <div class='card-body' style='color:#3b3b3b'>
 
+                                                                                        <h6>
+                                                                                            <b><?php echo $PlanName ?></b>
+                                                                                        </h6>
+
+                                                                                        <!-- <ul class='list-group list-group-flush'> -->
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+
+                                                                                            echo "<div>
+                                                                                                        <div>
+                                                                                                            <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                                $f_sum_assured  </strong>
+                                                                                                        </div>
+                                                                                                    </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <div>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
+                                                                                        </div>
+                                                                                        <!-- </ul> -->
+                                                                                        <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' 
+                                                                                            data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>
+                                                                                        ";
+                                                                                        ?>
+
+                                                                                        <!-- <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                            Cover
+                                                                                        </button> -->
+                                                                                    </div>
+                                                                                </div>
+                                                                        <?php
+                                                                            }
+                                                                        ?>
 
                                                                     </div>
 
@@ -1278,71 +1378,105 @@ $Nrcs = $isNrc->result();
                                                                     <div class="row">
 
                                                                         <?php
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+                                                                                ->get()
+                                                                                ->result();
 
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plan_id,plans.plan_code,plans.plan_name,
+                                                                                fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%WAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                                GROUP BY plan_name
+                                                                                ");
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI INDIVIDUAL WAY')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
+                                                                            if(empty($results)){
+                                                                                echo  "</br>No Data </br>";
+                                                                            }
 
-                                                                        // var_dump($plansList);
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
+                                                                                ///////////////////////////////
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plan_id,plans.plan_name,sum_assured,
+                                                                                fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%WAY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                                $results_details = $plansList_details->result_array();
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
-
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                                <div class='card-body'>
-
-                                                                                    <h5 style='color:#3b3b3b'>
-                                                                                        $PlanName
-                                                                                    </h5>
-
-                                                                                    <ul class='list-group list-group-flush'>
-                                                                                        <li class='list-group-item'>
-                                                                                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                                Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                                $f_sum_assured
-                                                                                                </strong>
-                                                                                            </div>
-                                                                                        </li>
-                                                                                        <li class='list-group-item'>
-                                                                                            Get Started at <strong>K
-                                                                                            $f_fixed_premium</strong>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover
-                                                                                    </button>
-                                                                                </div>
-                                                                                </div>";
-                                                                        }
 
                                                                         ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
 
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
 
+                                                                                    <ul class='list-group list-group-flush'>
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+                                                                                            $all_sums .= $Sum_assured . "<br>";
+
+                                                                                            // echo "<script> console.log('$all_sums')</script>";
+
+                                                                                            echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <li class='list-group-item'>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . 
+                                                                                            $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>";
+                                                                                    unset($all_sums);
+                                                                                    ?>
+                                                                                </div>
+                                                                            </div>
+                                                                        <?php
+                                                                        }
+                                                                        ?>
                                                                     </div>
 
                                                                 </div>
@@ -1402,67 +1536,102 @@ $Nrcs = $isNrc->result();
                                                                         <?php
 
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'COMBINED INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->not_like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI FAMILY')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%FAMILY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
+                                                                                GROUP BY plan_name
+                                                                            ");
 
-                                                                        // var_dump($plansList);
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
+                                                                            if(empty($results)){
+                                                                                echo  "</br>No Data </br>";
+                                                                            }
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                                                                                sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%FAMILY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                            <div class='card-body'>
-
-                                                                                <h5 style='color:#3b3b3b'>
-                                                                                    $PlanName
-                                                                                </h5>
-
-                                                                                <ul class='list-group list-group-flush'>
-                                                                                    <li class='list-group-item'>
-                                                                                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                            Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                            $f_sum_assured
-                                                                                        </div>
-                                                                                        </strong>
-                                                                                    </li>
-                                                                                    <li class='list-group-item'>
-                                                                                        Get Started at <strong>K
-                                                                                        $f_fixed_premium</strong>
-                                                                                    </li>
-                                                                                </ul>
-                                                                                <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
-                                                                            </div>
-                                                                            </div>";
-                                                                        }
-
+                                                                                $results_details = $plansList_details->result_array();
                                                                         ?>
+                                                                                <div class='card' style='width: 18rem; margin:5px'>
+                                                                                    <div class='card-body' style='color:#3b3b3b'>
 
+                                                                                        <h6>
+                                                                                            <b><?php echo $PlanName ?></b>
+                                                                                        </h6>
+
+                                                                                        <!-- <ul class='list-group list-group-flush'> -->
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+
+                                                                                            echo "<div>
+                                                                                                        <div>
+                                                                                                            <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                                $f_sum_assured  </strong>
+                                                                                                        </div>
+                                                                                                    </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <div>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
+                                                                                        </div>
+                                                                                        <!-- </ul> -->
+                                                                                        <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' 
+                                                                                            data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>
+                                                                                        ";
+                                                                                        ?>
+
+                                                                                        <!-- <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                            Cover
+                                                                                        </button> -->
+                                                                                    </div>
+                                                                                </div>
+                                                                        <?php
+                                                                            }
+                                                                        ?>
 
                                                                     </div>
 
@@ -1475,72 +1644,106 @@ $Nrcs = $isNrc->result();
                                                                 <div class="collapse" id="com_PremiumCoverPlan8" aria-expanded="true">
 
                                                                     <div class="row">
-
                                                                         <?php
+                                                                            $cover_benefits_id = $this->db->select("id")
+                                                                                ->from('cover_benefits')
+                                                                                ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+                                                                                ->get()
+                                                                                ->result();
 
+                                                                            $product_id  = $this->db->select("id")
+                                                                                ->from('products')
+                                                                                ->where('title', 'DOMESTIC TRAVEL INSURANCE')
+                                                                                ->get()
+                                                                                ->result();
 
-                                                                        $cover_benefits_id = $this->db->select("id")
-                                                                            ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $plansList = $this->db->query("SELECT cover_benefits.title,plan_id,plans.plan_code,plans.plan_name,
+                                                                                fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%FAMILY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND fixed_premium != '0'
 
-                                                                        $product_id  = $this->db->select("id")
-                                                                            ->from('products')
-                                                                            ->where('title', 'DOMESTIC TRAVEL INSURANCE')
-                                                                            ->get()
-                                                                            ->result();
+                                                                                GROUP BY plan_name
+                                                                                ");
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI FAMILY')
-                                                                            ->get()
-                                                                            ->result();
+                                                                            $results = $plansList->result_array();
+                                                                            // var_dump($results);
+                                                                            if(empty($results)){
+                                                                                echo  "</br>No Data </br>";
+                                                                            }
 
-                                                                        // var_dump($plansList);
+                                                                            foreach ($results as $planrow) {
+                                                                                $PlanName = $planrow['plan_name'];
+                                                                                ///////////////////////////////
+                                                                                $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plan_id,plans.plan_name,sum_assured,
+                                                                                fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                                inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                                inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                                INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                                WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                AND ( plans.plan_name LIKE '%FAMILY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND plan_name = '$PlanName'
+                                                                                ");
 
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
+                                                                                $results_details = $plansList_details->result_array();
 
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
-
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                                <div class='card-body'>
-
-                                                                                    <h5 style='color:#3b3b3b'>
-                                                                                        $PlanName
-                                                                                    </h5>
-
-                                                                                    <ul class='list-group list-group-flush'>
-                                                                                        <li class='list-group-item'>
-                                                                                            <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                                Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                                $f_sum_assured
-                                                                                            </div>
-                                                                                            </strong>
-                                                                                        </li>
-                                                                                        <li class='list-group-item'>
-                                                                                            Get Started at <strong>K
-                                                                                            $f_fixed_premium</strong>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                    <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                        Cover</a>
-                                                                                </div>
-                                                                                </div>";
-                                                                        }
 
                                                                         ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
 
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
 
+                                                                                    <ul class='list-group list-group-flush'>
+
+                                                                                        <?php
+                                                                                        foreach ($results_details as $planrow_details) {
+                                                                                            $title = $planrow_details['title'];
+                                                                                            $Sum_assured = $planrow_details['sum_assured'];
+                                                                                            $Fixed_premium = $planrow_details['fixed_premium'];
+
+                                                                                            $plan_id = $planrow_details['plan_id'];
+                                                                                            $plan_code = $planrow_details['plan_code'];
+
+                                                                                            $f_sum_assured = number_format($Sum_assured);
+                                                                                            if ($Fixed_premium > 0) {
+                                                                                                $f_fixed_premium = number_format($Fixed_premium);
+                                                                                            }
+                                                                                            $all_sums .= $Sum_assured . "<br>";
+
+                                                                                            // echo "<script> console.log('$all_sums')</script>";
+
+                                                                                            echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                        }
+                                                                                        ?>
+                                                                                        <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                        <li class='list-group-item'>
+                                                                                            Get Started at <strong>K
+                                                                                                <?php echo $f_fixed_premium ?></strong>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <?php echo "
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . 
+                                                                                            $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                            class='selection_btn btn btn-primary'>Select Cover
+                                                                                        </button>";
+                                                                                    unset($all_sums);
+                                                                                    ?>
+                                                                                </div>
+                                                                            </div>
+                                                                        <?php
+                                                                        }
+                                                                        ?>
                                                                     </div>
 
                                                                 </div>
@@ -1575,8 +1778,8 @@ $Nrcs = $isNrc->result();
                                                                 <div style="display:flex; ">
 
                                                                     <div>
-                                                                        <input class="form-check-input" type="radio" name="Premium4" id="PremiumPlan7">
-                                                                        <label class="form-check-label" for="PremiumPlan7">
+                                                                        <input class="form-check-input" type="radio" name="com_Premium4" id="com_PremiumPlan9">
+                                                                        <label class="form-check-label" for="com_PremiumPlan9">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
                                                                                 Premium per Term per Student<span style="color:#6199F5;">(Single Policy)</span>
                                                                             </strong>
@@ -1585,18 +1788,20 @@ $Nrcs = $isNrc->result();
 
 
 
+
+
                                                                 </div>
 
                                                                 <div class="collapse" id="com_PremiumCoverPlan9" aria-expanded="true">
 
-                                                                    <div class="row">
+                                                                <div class="row">
 
-                                                                        <?php
+                                                                    <?php
 
 
                                                                         $cover_benefits_id = $this->db->select("id")
                                                                             ->from('cover_benefits')
-                                                                            ->like('title', 'ACCIDENTAL DEATH BENEFIT')
+                                                                            ->like('title', 'COMBINED INSURANCE')
                                                                             ->get()
                                                                             ->result();
 
@@ -1606,57 +1811,93 @@ $Nrcs = $isNrc->result();
                                                                             ->get()
                                                                             ->result();
 
-                                                                        $plansList = $this->db->select("plans.plan_code,plans.plan_name,sum_assured,fixed_premium,min_age,max_age,cover_types.title")
-                                                                            ->from('plan_dependents')
-                                                                            ->join('plans', 'plans.id=plan_dependents.plan_id', 'inner')
-                                                                            ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
-                                                                            ->where('cover_benefits_type', $cover_benefits_id[0]->id)
-                                                                            ->not_like('cover_types.title', 'GROUP')
-                                                                            ->like('plans.product_id', $product_id[0]->id)
-                                                                            ->like('plans.plan_name', 'DTI STUDENT')
-                                                                            ->get()
-                                                                            ->result();
+                                                                        $plansList = $this->db->query("SELECT cover_benefits.title,plans.plan_code,plans.plan_name AS plan_name,
+                                                                            sum_assured,fixed_premium,min_age,max_age,cover_types.title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%DTI STUDENT%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND fixed_premium != '0'
+                                                                            GROUP BY plan_name
+                                                                        ");
 
-                                                                        // var_dump($plansList);
-
-                                                                        foreach ($plansList as $planrow) {
-                                                                            $PlanName = $planrow->plan_name;
-                                                                            $Sum_assured = $planrow->sum_assured;
-                                                                            $Fixed_premium = $planrow->fixed_premium;
-
-                                                                            $f_sum_assured = number_format($Sum_assured);
-                                                                            $f_fixed_premium = number_format($Fixed_premium);
-
-                                                                            echo "<div class='card' style='width: 18rem; margin:5px'>
-                                                                            <div class='card-body'>
-
-                                                                                <h5 style='color:#3b3b3b'>
-                                                                                    $PlanName
-                                                                                </h5>
-
-                                                                                <ul class='list-group list-group-flush'>
-                                                                                    <li class='list-group-item'>
-                                                                                        <div style='border:none; border-bottom:1px solid #3b3b3b'>
-                                                                                            Sum assured <strong style='color:teal; font-size:19px'>K
-                                                                                            $f_sum_assured
-                                                                                        </div>
-                                                                                        </strong>
-                                                                                    </li>
-                                                                                    <li class='list-group-item'>
-                                                                                        Get Started at <strong>K
-                                                                                        $f_fixed_premium</strong>
-                                                                                    </li>
-                                                                                </ul>
-                                                                                <button data-type='Accidental pay_as_u_go premium_per_individual_single $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
-                                                                                    Cover</a>
-                                                                            </div>
-                                                                            </div>";
+                                                                        $results = $plansList->result_array();
+                                                                        // var_dump($results);
+                                                                        if(empty($results)){
+                                                                            echo  "</br> No Data </br>";
                                                                         }
 
-                                                                        ?>
+                                                                        foreach ($results as $planrow) {
+                                                                            $PlanName = $planrow['plan_name'];
 
+                                                                            $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                                                                            sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                                                                            inner JOIN plans on plans.id=plan_dependents.plan_id
+                                                                            inner join cover_types on cover_types.id=plans.cover_type_id
+                                                                            INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            AND ( plans.plan_name LIKE '%DTI STUDENT%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                            AND plan_name = '$PlanName'
+                                                                            ");
 
-                                                                    </div>
+                                                                            $results_details = $plansList_details->result_array();
+                                                                    ?>
+                                                                            <div class='card' style='width: 18rem; margin:5px'>
+                                                                                <div class='card-body' style='color:#3b3b3b'>
+
+                                                                                    <h6>
+                                                                                        <b><?php echo $PlanName ?></b>
+                                                                                    </h6>
+
+                                                                                    <!-- <ul class='list-group list-group-flush'> -->
+
+                                                                                    <?php
+                                                                                    foreach ($results_details as $planrow_details) {
+                                                                                        $title = $planrow_details['title'];
+                                                                                        $Sum_assured = $planrow_details['sum_assured'];
+                                                                                        $Fixed_premium = $planrow_details['fixed_premium'];
+                                                                                        $plan_id = $planrow_details['plan_id'];
+                                                                                        $plan_code = $planrow_details['plan_code'];
+
+                                                                                        $f_sum_assured = number_format($Sum_assured);
+                                                                                        if ($Fixed_premium > 0) {
+                                                                                            $f_fixed_premium = number_format($Fixed_premium);
+                                                                                        }
+
+                                                                                        echo "<div>
+                                                                                                    <div>
+                                                                                                        <u> $title </u> <strong style='color:teal; font-size:19px'> : K
+                                                                                                            $f_sum_assured  </strong>
+                                                                                                    </div>
+                                                                                                </div>";
+                                                                                    }
+                                                                                    ?>
+                                                                                    <div style='width: 100%; background-color:#304060; height:1px '></div>
+                                                                                    <div>
+                                                                                        Get Started at <strong>K
+                                                                                            <?php echo $f_fixed_premium ?></strong>
+                                                                                    </div>
+                                                                                    <!-- </ul> -->
+                                                                                    <?php echo "
+                                                                                    <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' 
+                                                                                        data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
+                                                                                        class='selection_btn btn btn-primary'>Select Cover
+                                                                                    </button>
+                                                                                    ";
+                                                                                    ?>
+
+                                                                                    <!-- <button data-type='Accidental pay_as_u_go premium_group $f_sum_assured $f_fixed_premium' class='selection_btn btn btn-primary'>Select
+                                                                                        Cover
+                                                                                    </button> -->
+                                                                                </div>
+                                                                            </div>
+                                                                    <?php
+                                                                        }
+                                                                    ?>
+
+                                                                </div>
+
 
                                                                 </div>
                                                             </div>
@@ -2348,44 +2589,44 @@ $Nrcs = $isNrc->result();
                     })
                     $('#com_covertype2').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_collapsePlan2').collapse('show')
-                            $('com_collapsePlan1').collapse('hide')
-                            $('com_collapsePlan3').collapse('hide')
-                            $('com_collapsePlan4').collapse('hide')
-                            $('com_collapsePlan5').collapse('hide')
+                            $('#com_collapsePlan2').collapse('show')
+                            $('#com_collapsePlan1').collapse('hide')
+                            $('#com_collapsePlan3').collapse('hide')
+                            $('#com_collapsePlan4').collapse('hide')
+                            $('#com_collapsePlan5').collapse('hide')
                         }
 
                     })
 
                     $('#com_covertype3').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_collapsePlan1').collapse('hide')
-                            $('com_collapsePlan2').collapse('hide')
-                            $('com_collapsePlan3').collapse('show')
-                            $('com_collapsePlan4').collapse('hide')
-                            $('com_collapsePlan5').collapse('hide')
+                            $('#com_collapsePlan1').collapse('hide')
+                            $('#com_collapsePlan2').collapse('hide')
+                            $('#com_collapsePlan3').collapse('show')
+                            $('#com_collapsePlan4').collapse('hide')
+                            $('#com_collapsePlan5').collapse('hide')
                         }
 
                     })
 
                     $('#com_covertype4').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_collapsePlan1').collapse('hide')
-                            $('com_collapsePlan2').collapse('hide')
-                            $('com_collapsePlan3').collapse('hide')
-                            $('com_collapsePlan4').collapse('show')
-                            $('com_collapsePlan5').collapse('hide')
+                            $('#com_collapsePlan1').collapse('hide')
+                            $('#com_collapsePlan2').collapse('hide')
+                            $('#com_collapsePlan3').collapse('hide')
+                            $('#com_collapsePlan4').collapse('show')
+                            $('#com_collapsePlan5').collapse('hide')
                         }
 
                     })
 
                     $('#com_covertype5').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('com_collapsePlan1').collapse('hide')
-                            $('com_collapsePlan2').collapse('hide')
-                            $('com_collapsePlan3').collapse('hide')
-                            $('com_collapsePlan4').collapse('hide')
-                            $('com_collapsePlan5').collapse('show')
+                            $('#com_collapsePlan1').collapse('hide')
+                            $('#com_collapsePlan2').collapse('hide')
+                            $('#com_collapsePlan3').collapse('hide')
+                            $('#com_collapsePlan4').collapse('hide')
+                            $('#com_collapsePlan5').collapse('show')
                         }
 
                     })
@@ -2613,8 +2854,8 @@ $Nrcs = $isNrc->result();
 
                     $('#com_PremiumPlan6').on('change', function(e) {
                         if ($(this).is(':checked')) {
-                            $('#com_PremiumCoverPlan5').collapse('show')
-                            $('#com_PremiumCoverPlan6').collapse('hide')
+                            $('#com_PremiumCoverPlan5').collapse('hide')
+                            $('#com_PremiumCoverPlan6').collapse('show')
                         }
                     })
 
@@ -2629,6 +2870,12 @@ $Nrcs = $isNrc->result();
                         if ($(this).is(':checked')) {
                             $('#com_PremiumCoverPlan8').collapse('show')
                             $('#com_PremiumCoverPlan7').collapse('hide')
+                        }
+                    })
+                    $('#com_PremiumPlan9').on('change', function(e) {
+                        if ($(this).is(':checked')) {
+                            $('#com_PremiumCoverPlan9').collapse('show')
+                            $('#com_PremiumCoverPlan8').collapse('hide')
                         }
                     })
 
