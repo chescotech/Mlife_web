@@ -48,7 +48,7 @@ class Dashboard extends CI_Controller
                     'isLogIn'          => true,
                     'agent_f_name'     => $agentData->f_name,
                     'agent_l_name'     => $agentData->l_name,
-                    'agent_fullname'   => $agentData->f_name. " ". $agentData->l_name,
+                    'agent_fullname'   => $agentData->f_name . " " . $agentData->l_name,
                     'agent_code'       => $agentData->agent_code,
                     'agent_commission' => $agentData->agent_commission,
                     'mobile_no'        => $agentData->mobile_no,
@@ -69,6 +69,7 @@ class Dashboard extends CI_Controller
         $agentExists = $this->db->select('
                                             f_name, 
                                             l_name, 
+                                            agent_code,
                                             agent_commission, 
                                             email_id,
                                             mobile_no, 
@@ -96,5 +97,4 @@ class Dashboard extends CI_Controller
         $this->session->sess_destroy();
         redirect('home');
     }
-
 };

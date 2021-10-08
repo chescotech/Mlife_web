@@ -67,7 +67,7 @@ class Premium extends CI_Controller
 
 	public function checkPremiumUser()
 	{
-		$num_rows = $this->db->select('pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.policy_id')
+		$num_rows = $this->db->select('cus.nrc,cus.f_name,cus.l_name,cus.c_name,cus.nrc,cus.mobile_no,cus.email_id,cus.address1,cus.address2,cus.attachments,pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.id,pom.policy_id,po.customer_id,po.policy_code')
 			->from('customers AS cus')
 			->join('policies AS po','po.customer_id=cus.id', 'inner')
 			->join('policy_member AS pom','pom.policy_id=po.id', 'inner')
@@ -82,14 +82,23 @@ class Premium extends CI_Controller
 
 			$this->session->set_userdata([
 				'isPremiumLogIn' => true,
-				'nrc' => $userInfo[0]->NRC_passport,
+				'nrc' => $userInfo[0]->nrc,
 				'sum_assured' => $userInfo[0]->sum_assured,
 				'fixed_premium' => $userInfo[0]->fixed_premium,
 				'plan_id' => $userInfo[0]->plan_id,
 				'policy_id' => $userInfo[0]->policy_id,
-				'member_f_name' => $userInfo[0]->member_f_name,
-				'member_l_name' => $userInfo[0]->member_l_name,
-				'member_full_name' =>$userInfo[0]->member_f_name." ". $userInfo[0]->member_l_name
+				'policy_code' => $userInfo[0]->policy_code,
+				'policy_member_id' => $userInfo[0]->id,
+				'customer_id' => $userInfo[0]->customer_id,
+				'f_name' => $userInfo[0]->f_name,
+				'l_name' => $userInfo[0]->l_name,
+				'c_name' => $userInfo[0]->c_name,
+				'mobile_no' => $userInfo[0]->mobile_no,
+				'email_id' => $userInfo[0]->email_id,
+				'address1' => $userInfo[0]->address1,
+				'address2' => $userInfo[0]->address2,
+				'attachments' => $userInfo[0]->attachments,
+				'full_name' =>$userInfo[0]->f_name." ". $userInfo[0]->l_name
 			]);
 
 			return True;

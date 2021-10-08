@@ -44,9 +44,8 @@
     .User_Table tbody td {
         border: 1px solid #f1f1f1;
     }
-
-    button {
-        color: red;
+    button{
+        color:red;
         background-color: #fefefe !important;
     }
 </style>
@@ -103,13 +102,13 @@
                             <thead>
                                 <tr>
                                     <th> Transaction Date</th>
-                                    <th> Policy Number</th>
+                                    <th> Policy Number</th>                                   
                                     <th> Agent Code</th>
-                                    <th> Agent Names</th>
-
+                                     <th> Agent Names</th>
+                                     
                                     <th> Customer names</th>
-
-                                    <th> Plan Name</th>
+                                                                 
+                                    <th> Plan Name</th>                                  
                                     <th> Premium Received</th>
                                     <th> Commission Rate</th>
                                     <th> Commission (ZMW)</th>
@@ -117,7 +116,7 @@
                             </thead>
                             <tbody>
                                 <?php
-                                $query = $this->db->query("SELECT policies.policy_code,plans.plan_name,payment_receipts.date,agents.agent_code,agents.f_name AS f_name,agents.l_name,payment_receipts.amount,payment_receipts.date,customers.f_name,customers.l_name,customers.c_name  from payment_receipts
+                                $query = $this->db->query("SELECT policies.policy_code,plans.plan_name,payment_receipts.date,agents.agent_code,agents.f_name AS f_name,agents.l_name,payment_receipts.amount,payment_receipts.date,customers.f_name,customers.l_name  from payment_receipts
                                     left join 	policy_member  on policy_member.id = payment_receipts.policy_member_id 
                                     left join 	policies  on policies.id = policy_member.policy_id
                                     LEFT join 	plans  on plans.id = policies.plan_id 
@@ -127,7 +126,7 @@
                                    left join 	collectionmodes  on collectionmodes.id = policy_member.collection_mode_id
                                      WHERE payment_receipts.date BETWEEN '$from' AND '$to' AND agents.agent_code='$agent_code'
                                 ");
-
+                                
                                 if ($query->num_rows()) {
                                     $results = $query->result_array();
                                     foreach ($results as $result) {
@@ -159,21 +158,17 @@
                                         // $modal_premium = $result['modal_premium'];
                                         $premium_received = $result['amount'];
 
-                                        $commission = ($commission_rate / 100) * $premium_received; //$result['commission'];
+                                        $commission = ($commission_rate/100)*$premium_received; //$result['commission'];
                                         $total_commission += $commission;
-                                ?>
+                                        ?>
 
                                         <tr>
                                             <td> <?php echo $receipt_date ?> </td>
-                                            <td> <?php echo $policy_code; ?> </td>
+                                            <td> <?php echo $policy_code; ?> </td>   
                                             <td> <?php echo $agent_code ?> </td>
-                                            <td> <?php echo $this->session->userdata('agent_fullname')  ?> </td>
-                                            <td> <?php if ($result['c_name'] == "") {
-                                                        echo $result['f_name'] . ' ' . $result['l_name'];
-                                                    } else {
-                                                        echo $result['c_name'];
-                                                    } ?> </td>
-
+                                             <td> <?php echo $this->session->userdata('agent_fullname')  ?> </td>
+                                            <td> <?php echo $result['f_name'].' '.$result['l_name']; ?> </td>
+                                           
                                             <td> <?php echo $plan_name ?> </td>
 
 
@@ -183,7 +178,7 @@
 
                                         </tr>
 
-                                <?php
+                                        <?php
                                     }
                                 } else {
                                     echo "NOTHING TO SHOW HERE";
@@ -191,11 +186,10 @@
                                 ?>
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td></td>
+                                <tr>                                    <td></td>
 
-
-                                    <td></td>
+                                  
+<td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -221,7 +215,7 @@
 <script>
     // Scrollable table
 
-    $(function() {
+    $(function () {
         Fixed_Header();
     });
 

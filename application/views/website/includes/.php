@@ -52,13 +52,12 @@ $settings = $this->db->select("language")->get('setting')->row();
                         <a style="color: #0a56ee;" class="nav-link" href="<?= base_url($parent->url . '/premium') ?>">Pay Premium</a>
                     </li>
 
-                    <?php if (!$this->session->userdata('isLogIn')) { ?>
-                        <li class="nav-item <?php if (!empty($parent->sub)) {
-                                                echo "dropdown";
-                                            } ?> <?php echo (($this->uri->segment(1) == $parent->url) ? "active" : null) ?>">
-                            <a style="color: #0a56ee;" class="nav-link" href="<?= base_url($parent->url . '/term') ?>">Terms And Conditions</a>
-                        </li>
-                    <?php } ?>
+                    <li class="nav-item <?php if (!empty($parent->sub)) {
+                                            echo "dropdown";
+                                        } ?> <?php echo (($this->uri->segment(1) == $parent->url) ? "active" : null) ?>">
+                        <a style="color: #0a56ee;" class="nav-link" href="<?= base_url($parent->url . '/term') ?>">Terms And Conditions</a>
+                    </li>
+                    
                     <!-- Parent menu -->
                 </ul>
                 <ul class="navbar-nav ml-auto">
@@ -95,7 +94,7 @@ $settings = $this->db->select("language")->get('setting')->row();
             }
     </style>
 
-    <nav id="sidebar" class="sidebar-nav sidear-right">
+    <nav id="sidebar" class="sidebar-nav">
         <div id="dismiss">
             <i class="ti-arrow-right"></i>
         </div>
@@ -139,11 +138,13 @@ $settings = $this->db->select("language")->get('setting')->row();
                         <a style="color: #0a56ee;" class="nav-link" href="<?= base_url($parent->url . '/premium') ?>">Pay Premium</a>
                     </li>
 
+                    <?php if (!$this->session->userdata('isLogIn')) { ?>
                         <li class="nav-item <?php if (!empty($parent->sub)) {
                                                 echo "dropdown";
                                             } ?> <?php echo (($this->uri->segment(1) == $parent->url) ? "active" : null) ?>">
                             <a style="color: #0a56ee;" class="nav-link" href="<?= base_url($parent->url . '/term') ?>">Terms And Conditions</a>
                         </li>
+                    <?php } ?>
                     <!-- Parent menu -->
                 </ul>
         </ul>

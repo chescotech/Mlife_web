@@ -27,13 +27,13 @@ class Appointment extends CI_Controller
 
 
             $message['nextTab'] = '
-                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-                                <script type="text/javascript">
-                                    var target = $("#nav-profile-tab");
-                                    target.removeClass("disabled");
-                                    target.trigger("click");
-                                </script>
-                                ';
+                                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+                                        <script type="text/javascript">
+                                            var target = $("#nav-profile-tab");
+                                            target.removeClass("disabled");
+                                            target.trigger("click");
+                                        </script>
+                                        ';
 
             $this->session->set_flashdata($message);
             redirect($_SERVER['HTTP_REFERER']);
@@ -52,6 +52,7 @@ class Appointment extends CI_Controller
             ->from('customers')
             ->where('mobile_no', $this->input->post('mobile', true))
             ->get();
+
 
         if ($num_rows > 0) {
             return False;
@@ -94,154 +95,25 @@ class Appointment extends CI_Controller
         return $Premiums_rows;
     }
 
-    // Webcam picture
-
-    public function saveTempCamImage()
-    {
-        // var_dump($_FILES);
-
-        $target_dir = "uploads/";
-        $target_file = $target_dir . basename($_FILES["image"]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Check if image file is a actual image or fake image
-        if (isset($_POST["submit"])) {
-            $check = getimagesize($_FILES["image"]["tmp_name"]);
-            if ($check !== false) {
-                echo "File is an image - " . $check["mime"] . ".";
-                $uploadOk = 1;
-            } else {
-                echo "File is not an image.";
-                $uploadOk = 0;
-            }
-        }
-
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            echo "Sorry, file already exists.";
-            $uploadOk = 0;
-        }
-
-        // Check file size
-        if ($_FILES["image"]["size"] > 500000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-
-        // Allow certain file formats
-        if (
-            $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-            && $imageFileType != "gif"
-        ) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            $uploadOk = 0;
-        }
-
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            echo "Sorry, your file was not uploaded.";
-            // if everything is ok, try to upload file
-        } else {
-            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                echo "The file " . htmlspecialchars(basename($_FILES["image"]["name"])) . " has been uploaded.";
-            } else {
-                echo "Sorry, there was an error uploading your file.";
-            }
-        }
-
-        $this->session->set_userdata([
-            'attachments' => $_FILES["image"]["name"],
-        ]);
-    }
-
-    // Uploaded image from folder 
-
     public function saveTempImage()
     {
-        // var_dump($_FILES);
-
-        $target_dir = "uploads/";
-        $target_file = $target_dir . basename($_FILES["file"]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Check if image file is a actual image or fake image
-        // if(isset($_POST["submit"])) {
-        //   $check = getimagesize($_FILES["file"]["tmp_name"]);
-        //   if($check !== false) {
-        //     echo "File is an image - " . $check["mime"] . ".";
-        //     $uploadOk = 1;
-        //   } else {
-        //     echo "File is not an image.";
-        //     $uploadOk = 0;
-        //   }
-        // }
-
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            echo "Sorry, file already exists.";
-            $uploadOk = 0;
-        }
-
-        // Check file size
-        if ($_FILES["file"]["size"] > 500000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-
-        // Allow certain file formats
-        // if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-        // && $imageFileType != "gif" ) {
-        //   echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        //   $uploadOk = 0;
-        // }
-
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            echo "Sorry, your file was not uploaded.";
-            // if everything is ok, try to upload file
-        } else {
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-                echo "The file " . htmlspecialchars(basename($_FILES["file"]["name"])) . " has been uploaded.";
-            } else {
-                echo "Sorry, there was an error uploading your file.";
-            }
-        }
-
-
-        if ($this->session->userdata('attachments') == '') {
-            $this->session->set_userdata([
-                'attachments' => $_FILES["file"]["name"],
-            ]);
-        } else {
-            $filelink =  $this->session->userdata('attachments') . ', ' . $_FILES["file"]["name"];
-
-            var_dump($filelink);
-            var_dump($this->session->userdata('attachments'));
-            var_dump($_FILES["file"]["name"]);
-
-            $this->session->set_userdata([
-                'attachments' => $filelink,
-            ]);
-        }
+        $this->session->set_userdata([
+            'files' => $_FILES["fileToUpload"]["name"],
+        ]);
     }
 
     //Inser data into temp_table
     function saveDataToTemp()
     {
         // First, Fetch some data
-        $coveredArr  = $this->session->userdata('coveredArr');
-        $surnameArr  = $this->session->userdata('surnameArr');
-        $othernameArr  = $this->session->userdata('othernameArr');
-        $dobArr  = $this->session->userdata('dobArr');
-        $genderArr  = $this->session->userdata('genderArr');
-        $nrcArr  = $this->session->userdata('nrcArr');
-        $premiumArr  = $this->session->userdata('premiumArr');
-        $suminputArr  = $this->session->userdata('suminputArr');
-
-        // $mainArr = array_merge($coveredArr, $surnameArr, $othernameArr, $dobArr, $premiumArr, $suminputArr, $nrcArr, $genderArr);
-        // var_dump($mainArr);
+        $coveredArr  = $this->input->post('covered', true);
+        $surnameArr  = $this->input->post('surname', true);
+        $othernameArr  = $this->input->post('othername', true);
+        $dobArr  = $this->input->post('dob', true);
+        $genderArr  = $this->input->post('gender', true);
+        $nrcArr  = $this->input->post('nrc1', true);
+        $premiumArr  = $this->input->post('premium', true);
+        $suminputArr  = $this->input->post('suminput', true);
 
         array_map(
             function (
@@ -276,17 +148,17 @@ class Appointment extends CI_Controller
             $suminputArr
         );
 
-        // for ($i = 0; $i <br COUNT($coveredArr); $i++) {
+        // for ($i = 0; $i < COUNT($covered); $i++) {
 
         //     $this->db->insert('temparray', array(
-        //         'covered' =>    $coveredArr,
-        //         'surname' =>    $surnameArr,
-        //         'othername' =>    $othernameArr,
-        //         'dob' =>    $dobArr,
-        //         'gender' =>    $genderArr,
-        //         'nrc' =>    $nrcArr,
-        //         'premium' =>    $premiumArr,
-        //         'suminput' =>    $suminputArr,
+        //         'covered' =>    $covered,
+        //         'surname' =>    $surname,
+        //         'othername' =>    $othername,
+        //         'dob' =>    $dob,
+        //         'gender' =>    $gender,
+        //         'nrc' =>    $nrc,
+        //         'premium' =>    $premium,
+        //         'suminput' =>    $suminput,
         //     ));
         // }
     }
@@ -302,58 +174,34 @@ class Appointment extends CI_Controller
 
     public function mobile()
     {
+        // $TableDataArr = [];
 
-        if ($this->input->post("recharge", true)) {
+        // foreach ($this->input->post('covered', true) as $covered) {
+        //     array_push($TableDataArr, $covered);
+        // }
+        // foreach ($this->input->post('surname', true) as $surname) {
+        //     array_push($TableDataArr, $surname);
+        // }
+        // foreach ($this->input->post('othername', true) as $othername) {
+        //     array_push($TableDataArr, $othername);
+        // }
+        // foreach ($this->input->post('dob', true) as $dod) {
+        //     array_push($TableDataArr, $dod);
+        // }
+        // foreach ($this->input->post('gender', true) as $gender) {
+        //     array_push($TableDataArr, $gender);
+        // }
+        // foreach ($this->input->post('nrc', true) as $nrc) {
+        //     array_push($TableDataArr, $nrc);
+        // }
+        // foreach ($this->input->post('premium', true) as $premium) {
+        //     array_push($TableDataArr, $premium);
+        // }
+        // foreach ($this->input->post('suminput', true) as $suminput) {
+        //     array_push($TableDataArr, $suminput);
+        // }
 
-            $this->session->set_userdata([
-                'phoneNumber' => $this->input->post("phoneNumber", true),
-                'policy_type' => $this->input->post("2", true),
-                'plan_id' => $this->input->post("6", true),
-                'plan_code' => $this->input->post("7", true),
-                'premium' => $this->input->post("5", true),
-                'sumasured' => $this->input->post("4", true),
-                'phone_no' => $this->input->post("numberPhone", true),
-            ]);
-
-            $this->MobilePaymentProcessor($this->input->post("numberPhone", true), $this->input->post("4", true));
-        } else if ($this->input->post("Reg_type", true) == "Company") {
-            // var_dump($this->input->post('premium', true));
-
-            $this->session->set_userdata([
-                'c_name' => $this->input->post("c_name", true),
-                'c_reg' => $this->input->post("c_reg", true),
-                'postalAddress' => $this->input->post("postalAddress", true),
-                'physicalAddress' => $this->input->post("physicalAddress", true),
-                'emailAddress' => $this->input->post("emailAddress", true),
-                'phoneNumber' => $this->input->post("phoneNumber", true),
-                'policy_type' => $this->input->post("2", true),
-                'plan_id' => $this->input->post("6", true),
-                'plan_code' => $this->input->post("7", true),
-                'premium' => $this->input->post("5", true),
-                'sumasured' => $this->input->post("4", true),
-                'paymentId' => $this->input->post("paymentId", true),
-                'recharge' => $this->input->post("recharge", true),
-                'phone_no' => $this->input->post("numberPhone", true),
-                'total' => $this->input->post("total", true),
-                'agentCode' => $this->input->post("agent", true),
-                'Reg_type' => $this->input->post("Reg_type", true),
-                'premiumArr' => $this->input->post('premium', true),
-                'suminputArr' => $this->input->post('suminput', true),
-                'nrcArr' => $this->input->post('nrc1', true),
-                'genderArr' => $this->input->post('gender', true),
-                'dobArr' => $this->input->post('dob', true),
-                'othernameArr' => $this->input->post('othername', true),
-                'surnameArr' => $this->input->post('surname', true),
-                'coveredArr' => $this->input->post('covered', true),
-                'groupTotal' => $this->input->post('groupTotal')
-
-            ]);
-
-            // var_dump($this->session->userdata("groupTotal"));
-            // var_dump($this->session->userdata("phone_no"));
-            $this->MobilePaymentProcessor($this->session->userdata("phone_no"), $this->session->userdata("groupTotal"));
-        } else {
-            // if ($this->input->post("airtel_number", true) != NULL) {
+        if ($this->input->post("airtel_number", true) != NULL) {
             $this->session->set_userdata([
                 'last_name' => $this->input->post("last_name", true),
                 'other_name' => $this->input->post("other_name", true),
@@ -368,28 +216,20 @@ class Appointment extends CI_Controller
                 'policy_type' => $this->input->post("2", true),
                 'plan_id' => $this->input->post("6", true),
                 'plan_code' => $this->input->post("7", true),
+                'agent' => $this->input->post("agent", true),
                 'premium' => $this->input->post("5", true),
                 'sumasured' => $this->input->post("4", true),
-                'paymentId' => $this->input->post("paymentId", true),
+                'paymentId' => $this->input->post("id", true),
                 'recharge' => $this->input->post("recharge", true),
-                'phone_no' => $this->input->post("numberPhone", true),
+                'phone_no' => $this->input->post("airtel_number", true),
                 'total' => $this->input->post("total", true),
-                'agentCode' => $this->input->post("agent", true),
             ]);
-            // }
-
-            $this->MobilePaymentProcessor($this->session->userdata("phone_no"), $this->session->userdata("premium"));
         }
-    }
 
-    function MobilePaymentProcessor($number, $amount)
-    {
-        $phone_no  = $number;
+        $phone_no  = $this->session->userdata("phone_no");
         $reference = $phone_no . date("his");
 
-        $this->session->set_userdata([
-            'ref' => $reference,
-        ]);
+        // var_dump($phone_no);
 
         $soap_request = '<?xml version="1.0" encoding="UTF-8"?>
                             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:kon="http://konik.cgrate.com">
@@ -403,9 +243,9 @@ class Appointment extends CI_Controller
                             </soapenv:Header>
                             <soapenv:Body>
                                 <kon:processCustomerPayment>
-                                    <transactionAmount>' . $amount . '</transactionAmount>
+                                    <transactionAmount>' . $this->session->userdata('total') . '</transactionAmount>
                                     <customerMobile>' . $phone_no . '</customerMobile>
-                                        <paymentReference>' . $this->session->userdata('ref') . '</paymentReference>
+                                        <paymentReference>' . $reference . '</paymentReference>
                                     </kon:processCustomerPayment>
                                 </soapenv:Body>
                                 </soapenv:Envelope>
@@ -443,53 +283,31 @@ class Appointment extends CI_Controller
         '
         <link href="' . base_url('assets_web/css/semantic.css') . '" type="text/css" rel="stylesheet"> 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
-            <div id="paymentBanner" style="width:100%; height: 100%;" >
+        ' . form_open_multipart("website/appointment/done", 'id="processInfo"') . '
+            <div style="width:100%; height: 100%;" >
                 <div class="ui icon message" style="width:50%; padding:10px; margin:auto; margin-top:40px;">
-                    <i class="fa fa-circle-o-notch notched circle loading " style="font-size:60px; padding-left:20px; margin-right:30px;"></i>
+                    <i class="fa fa-mobile" style="font-size:60px; padding-left:20px; margin-right:30px;"></i>
                     <div class="content">
                         <div class="header">
-                            Waiting for you to authorize transaction
+                            Transaction Verification
                         </div>
                         <ul class="list">
                             <li>Please verify the transaction from your mobile money account</li>
                             <li>Enter your pin then click on the continue to proceed</li>
                         </ul>
-
-                        <div id="countdown"></div>
-                        <progress value="0" max="10" id="progressBar"></progress>
+                        <div style="margin-top:15px;">
+                            <input type="hidden" name="ref" value=' . $reference . ' >
+                            <button type="submit" id="submitPayment" class="ui primary button">
+                                Continue
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <script>
-                    var timeleft = 10;
-                    var downloadTimer = setInterval(function(){
-                    if(timeleft <= 0){
-                        clearInterval(downloadTimer);
-                        document.getElementById("countdown").innerHTML = "Validating transaction...";
-                        $.ajax({
-                            url: "' . base_url('website/appointment/done') . '",
-                            type: "POST",
-                            dataType: "html",
-                            success: function(data) {
-                                $("#paymentBanner").html(data)
-                            },
-                            error: function() {
-                                alert("failed");
-                            }
-                        });
-                    }else {
-                        document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
-                      }
-                    document.getElementById("progressBar").value = 10 - timeleft;
-                        timeleft -= 1;
-                    }, 1100);
-
-                   
-                </script>';
-
-                
+            </div>'
+            . form_close() .
+            '
+             
+            ';
     }
 
     public function paymentSucc()
@@ -498,209 +316,41 @@ class Appointment extends CI_Controller
 
         $mainFiles = $this->session->userdata('files');
 
-        if ($this->input->post("recharge", true)) {
-            // $created_date = date('Y-m-d H:i:s');
-            $this->db->insert('payment_receipts', array(
-                'receipt_no'   => '0972160250054858',
-                'customer_id'   => $this->session->userdata('customer_id'),
-                'policy_id' => $this->session->userdata('policy_id'),
-                'policy_no' => $this->session->userdata('policy_code'),
-                'policy_holder' => $this->session->userdata('member_full_name'),
-                'plan_id' => $this->session->userdata('plan_id'),
-                'policy_member_id' =>  $this->session->userdata('policy_member_id'),
-                'date' => $created_date,
-                'collection_mode_id' => $this->session->userdata('paymentId'),
-                'doc_reference_date'   => $created_date,
-                'amount'   => $this->session->userdata('premium'),
-                'company_id'   => 16,
-            ));
-        } else {
+        if ($this->session->userdata('policy_type') == "premium_group") {
+            // var_dump($this->session->userdata('tableData'));
+            $this->saveDataToTemp();
 
-            if ($this->session->userdata('Reg_type') == "Company") {
-                // var_dump($this->session->userdata('c_name'));
+            $tableData = $this->getTemp();
 
-                $this->saveDataToTemp();
-
-                $tableData = $this->getTemp();
-
-                $this->db->insert('customers', array(
-                    'f_name' => '',
-                    'l_name' => '',
-                    'c_name'   => $this->session->userdata('c_name'),
-                    'c_register_no'   => $this->session->userdata('c_reg'),
-                    // 'date_of_birth' => $rows->dob,
-                    // 'gender'   => $rows->gender,
-                    // 'contact_person' => $this->input->post('f_name',true),
-                    // 'nrc'      => $rows->nrc,
-                    'mobile_no' => $this->session->userdata('phoneNumber'),
-                    'email_id' => $this->session->userdata('emailAddress'),
-                    'address1' => $this->session->userdata('physicalAddress'),
-                    'address2' => $this->session->userdata('postalAddress'),
-                    'customer_type' => 'Company',
-                    'created_by' => $this->session->userdata('agentCode'),
-                    'created_date' => $created_date,
-                    'company_id' => 16,
-                    'attachments' => $this->session->userdata('attachments')
-                ));
-
-                $customerId = $this->db->insert_id();
-                $policy_code = "DTI" . "-000000-" . $customerId;
-                // $customerIdRow = $customerId->result();
-
-                foreach ($tableData->result() as $rows) {
-                    // var_dump($rows);
-
-                    // Insert data in the Policies table
-                    $this->db->insert('policies', array(
-                        'customer_id'   => $customerId,
-                        'policy_type'   => 'Company',
-                        'plan_id' => $this->session->userdata('plan_id'),
-                        'policy_code' => $policy_code,
-                        'agent_id' => $this->session->userdata("agentCode"),
-                        'policy_status'   => 'Active',
-                        'currency_id'   => '6',
-                        'created_by'   => $this->session->userdata('agentCode'),
-                        'created_date'   => $created_date,
-                        'updated_by'   => 0,
-                        'updated_date' => $created_date,
-                        'deleted_by' => 0,
-                        'deleted_date' => '0000-00-00 00:00:00',
-                        'deleted_status'   => 'No',
-                        'company_id' => 16,
-                    ));
-
-                    // Get policies id
-
-                    $policyId = $this->db->select('id')
-                        ->from('policies')
-                        ->where('customer_id', $customerId)
-                        ->get();
-
-                    $policyIdRow = $policyId->result();
-
-                    // var_dump($this->session->userdata('plan_id'));
-                    // var_dump($policyIdRow[0]->id);
-
-                    // Insert data into policy member
-                    $this->db->insert('policy_member', array(
-                        'policy_id'   => $policyIdRow[0]->id,
-                        'member_f_name'   => $rows->surname,
-                        'member_l_name' => $rows->othername,
-                        'date_of_birth' => $rows->dob,
-                        'gender' => $rows->gender,
-                        'NRC_passport' => $rows->nrc,
-                        'employee_no'   => 0,
-                        'employer_id'   => 0,
-                        'benf_relation_id' => $customerId,
-                        'beneficiary_name' => $created_date,
-                        'beneficiary_name' => $rows->surname . +" " . +$rows->othername,
-                        'beneficiary_nrc' => $rows->nrc,
-                        'beneficiary_mobile_no' => $this->session->userdata('phoneNumber'),
-                        'beneficiary_address' => $this->session->userdata('physicalAddress'),
-                        'valid_from_date' => $created_date,
-                        'valid_to_date' => $created_date,
-                        // 'member_status' => $created_date,
-                        'created_by' => $this->session->userdata('agentCode'),
-                        'created_date' => $created_date,
-                        'updated_by' => 0,
-                        'updated_date' => '0000-00-00 00:00:00',
-                        'deleted_by' => 0,
-                        'deleted_date' => '0000-00-00 00:00:00',
-                        'company_id' => 16,
-
-                    ));
-
-                    $policyMemderId = $this->db->select('id')
-                        ->from('policy_member')
-                        ->where('policy_id', $policyIdRow[0]->id)
-                        ->get();
-
-                    $policyMemderIdRow = $policyMemderId->result();
-
-                    // var_dump($policyMemderIdRow[0]->id);
-
-                    // Insert data into policy dependents
-                    $this->db->insert('policy_dependents', array(
-                        'policy_member_id'   => $policyMemderIdRow[0]->id,
-                        'group_policy_id'   => 0,
-                        'dependent_name' => $rows->surname . +" " . +$rows->othername,
-                        'planDependent_id' => $this->session->userdata('plan_id'),
-                        'gender' => $rows->gender,
-                        'NRC' => $rows->nrc,
-                        'date_of_birth' => $rows->dob,
-                        'premium'   => $this->session->userdata('premium'),
-                    ));
-                }
-                // insert in payments
-
-                $this->db->insert('payment_receipts', array(
-                    'receipt_no'   => '0972160250054856',
-                    'customer_id'   => $customerId,
-                    'policy_id' => $policyIdRow[0]->id,
-                    'policy_no' => $policy_code,
-                    'policy_holder' => $this->session->userdata('c_name'),
-                    'plan_id' => $this->session->userdata('plan_id'),
-                    'policy_member_id' => $policyMemderIdRow[0]->id,
-                    'date' => $created_date,
-                    'collection_mode_id' => $this->session->userdata('paymentId'),
-                    'doc_reference_date'   => $created_date,
-                    'amount'   => $this->session->userdata('groupTotal'),
-                    'company_id'   => 16,
-                ));
-
-                $this->db->query("DELETE FROM temparray");
-
-                // redirect('home');
-            } else {
-
-                if ($this->session->userdata('recharge')) {
-
-                    // $this->db->insert('payment_receipts', array(
-                    //     'receipt_no'   => '0972160250054856',
-                    //     'customer_id'   => $customerId,
-                    //     'policy_id' => $policyIdRow[0]->id,
-                    //     'policy_no' => $this->session->userdata('plan_code'),
-                    //     'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
-                    //     'plan_id' => $this->session->userdata('plan_id'),
-                    //     'date' => $created_date,
-                    //     'collection_mode_id' => $this->session->userdata('paymentId'),
-                    //     'doc_reference_date'   => $created_date,
-                    //     'amount'   => $this->session->userdata('premium'),
-                    //     'company_id'   => 16,
-                    // ));
-
-                    return;
-                }
-
+            foreach ($tableData->result() as $rows) {
                 // insert data into customers table
+
                 $this->db->insert('customers', array(
-                    'f_name'   => $this->session->userdata('last_name'),
-                    'l_name'   => $this->session->userdata('other_name'),
-                    'date_of_birth' => $this->session->userdata('date1'),
-                    'gender'   => $this->session->userdata('gender1'),
+                    'f_name'   => $rows->surname,
+                    'l_name'   => $rows->othername,
+                    'date_of_birth' => $rows->dob,
+                    'gender'   => $rows->gender,
                     // 'contact_person' => $this->input->post('f_name',true),
-                    'nrc'      => $this->session->userdata('nrc'),
+                    'nrc'      => $rows->nrc,
                     'mobile_no' => $this->session->userdata('phoneNumber'),
                     'email_id' => $this->session->userdata('emailAddress'),
                     'address1' => $this->session->userdata('physicalAddress'),
                     'address2' => $this->session->userdata('postalAddress'),
                     'occupation_id' => $this->session->userdata('occupations'),
                     'customer_type' => 'Individual',
-                    'created_by' => $this->session->userdata('agentCode'),
+                    'created_by' => $this->session->userdata('agent'),
                     'created_date' => $created_date,
-                    'attachments' => $this->session->userdata('attachments'),
                     'company_id' => 16,
                 ));
 
                 // get customer id from customers table
 
-                $customerId = $this->db->insert_id();
 
+                $customerId = $this->db->insert_id();
+                $policy_code = "DTI"."-000000-".$customerId;
                 // $customerIdRow = $customerId->result();
 
                 // var_dump($customerIdRow[0]->id);
-
-                $policy_code = "DTI" . "-000000-" . $customerId;
 
                 // Insert data in the Policies table
                 $this->db->insert('policies', array(
@@ -708,10 +358,10 @@ class Appointment extends CI_Controller
                     'policy_type'   => 'Individual',
                     'plan_id' => $this->session->userdata('plan_id'),
                     'policy_code' => $policy_code,
-                    'agent_id' => $this->session->userdata("agentCode"),
+                    'agent_id' => 1,
                     'policy_status'   => 'Active',
                     'currency_id'   => '6',
-                    'created_by'   => $this->session->userdata('agentCode'),
+                    'created_by'   => $this->session->userdata('agent'),
                     'created_date'   => $created_date,
                     'updated_by'   => 0,
                     'updated_date' => $created_date,
@@ -736,23 +386,23 @@ class Appointment extends CI_Controller
                 // Insert data into policy member
                 $this->db->insert('policy_member', array(
                     'policy_id'   => $policyIdRow[0]->id,
-                    'member_f_name'   => $this->session->userdata('last_name'),
-                    'member_l_name' => $this->session->userdata('other_name'),
-                    'date_of_birth' => $this->session->userdata('date1'),
-                    'gender' => $this->session->userdata('gender1'),
-                    'NRC_passport' => $this->session->userdata('nrc'),
+                    'member_f_name'   => $rows->surname,
+                    'member_l_name' => $rows->othername,
+                    'date_of_birth' => $rows->dob,
+                    'gender' => $rows->gender,
+                    'NRC_passport' => $rows->nrc,
                     'employee_no'   => 0,
                     'employer_id'   => 0,
                     'benf_relation_id' => $customerId,
                     'beneficiary_name' => $created_date,
-                    'beneficiary_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
-                    'beneficiary_nrc' => $this->session->userdata('nrc'),
+                    'beneficiary_name' => $rows->surname . +" " . +$rows->othername,
+                    'beneficiary_nrc' => $rows->nrc,
                     'beneficiary_mobile_no' => $this->session->userdata('phoneNumber'),
                     'beneficiary_address' => $this->session->userdata('physicalAddress'),
                     'valid_from_date' => $created_date,
                     'valid_to_date' => $created_date,
                     // 'member_status' => $created_date,
-                    'created_by' => $this->session->userdata('agentCode'),
+                    'created_by' => $this->session->userdata('agent'),
                     'created_date' => $created_date,
                     'updated_by' => 0,
                     'updated_date' => '0000-00-00 00:00:00',
@@ -775,11 +425,11 @@ class Appointment extends CI_Controller
                 $this->db->insert('policy_dependents', array(
                     'policy_member_id'   => $policyMemderIdRow[0]->id,
                     'group_policy_id'   => 0,
-                    'dependent_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                    'dependent_name' => $rows->surname . +" " . +$rows->othername,
                     'planDependent_id' => $this->session->userdata('plan_id'),
-                    'gender' => $this->session->userdata('gender1'),
-                    'NRC' => $this->session->userdata('nrc'),
-                    'date_of_birth' => $this->session->userdata('date1'),
+                    'gender' => $rows->gender,
+                    'NRC' => $rows->nrc,
+                    'date_of_birth' => $rows->dob,
                     'premium'   => $this->session->userdata('premium'),
                 ));
 
@@ -790,7 +440,7 @@ class Appointment extends CI_Controller
                     'customer_id'   => $customerId,
                     'policy_id' => $policyIdRow[0]->id,
                     'policy_no' => $policy_code,
-                    'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                    'policy_holder' => $rows->surname . +" " . +$rows->othername,
                     'plan_id' => $this->session->userdata('plan_id'),
                     'policy_member_id' => $policyMemderIdRow[0]->id,
                     'date' => $created_date,
@@ -799,15 +449,161 @@ class Appointment extends CI_Controller
                     'amount'   => $this->session->userdata('premium'),
                     'company_id'   => 16,
                 ));
-
-
-                // redirect('home');
-
             }
 
-            $this->session->set_userdata([
-                'attachments' => '',
-            ]);
+            $this->db->query("DELETE FROM temparray");
+
+            redirect('home');
+        } else {
+
+            if ($this->session->userdata('recharge')) {
+
+                // $this->db->insert('payment_receipts', array(
+                //     'receipt_no'   => '0972160250054856',
+                //     'customer_id'   => $customerId,
+                //     'policy_id' => $policyIdRow[0]->id,
+                //     'policy_no' => $this->session->userdata('plan_code'),
+                //     'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                //     'plan_id' => $this->session->userdata('plan_id'),
+                //     'date' => $created_date,
+                //     'collection_mode_id' => $this->session->userdata('paymentId'),
+                //     'doc_reference_date'   => $created_date,
+                //     'amount'   => $this->session->userdata('premium'),
+                //     'company_id'   => 16,
+                // ));
+
+                return;
+            }
+
+            // insert data into customers table
+            $this->db->insert('customers', array(
+                'f_name'   => $this->session->userdata('last_name'),
+                'l_name'   => $this->session->userdata('other_name'),
+                'date_of_birth' => $this->session->userdata('date1'),
+                'gender'   => $this->session->userdata('gender1'),
+                // 'contact_person' => $this->input->post('f_name',true),
+                'nrc'      => $this->session->userdata('nrc'),
+                'mobile_no' => $this->session->userdata('phoneNumber'),
+                'email_id' => $this->session->userdata('emailAddress'),
+                'address1' => $this->session->userdata('physicalAddress'),
+                'address2' => $this->session->userdata('postalAddress'),
+                'occupation_id' => $this->session->userdata('occupations'),
+                'customer_type' => 'Individual',
+                'created_by' => $this->session->userdata('agent'),
+                'created_date' => $created_date,
+                'company_id' => 16,
+            ));
+
+            // get customer id from customers table
+
+            $customerId = $this->db->insert_id();
+
+            // $customerIdRow = $customerId->result();
+
+            // var_dump($customerIdRow[0]->id);
+
+            $policy_code = "DTI"."-000000-".$customerId;
+            
+            // Insert data in the Policies table
+            $this->db->insert('policies', array(
+                'customer_id'   => $customerId,
+                'policy_type'   => 'Individual',
+                'plan_id' => $this->session->userdata('plan_id'),
+                'policy_code' => $policy_code,
+                'agent_id' => 1,
+                'policy_status'   => 'Active',
+                'currency_id'   => '6',
+                'created_by'   => $this->session->userdata('agent'),
+                'created_date'   => $created_date,
+                'updated_by'   => 0,
+                'updated_date' => $created_date,
+                'deleted_by' => 0,
+                'deleted_date' => '0000-00-00 00:00:00',
+                'deleted_status'   => 'No',
+                'company_id' => 16,
+            ));
+
+            // Get policies id
+
+            $policyId = $this->db->select('id')
+                ->from('policies')
+                ->where('customer_id', $customerId)
+                ->get();
+
+            $policyIdRow = $policyId->result();
+
+            // var_dump($this->session->userdata('plan_id'));
+            // var_dump($policyIdRow[0]->id);
+
+            // Insert data into policy member
+            $this->db->insert('policy_member', array(
+                'policy_id'   => $policyIdRow[0]->id,
+                'member_f_name'   => $this->session->userdata('last_name'),
+                'member_l_name' => $this->session->userdata('other_name'),
+                'date_of_birth' => $this->session->userdata('date1'),
+                'gender' => $this->session->userdata('gender1'),
+                'NRC_passport' => $this->session->userdata('nrc'),
+                'employee_no'   => 0,
+                'employer_id'   => 0,
+                'benf_relation_id' => $customerId,
+                'beneficiary_name' => $created_date,
+                'beneficiary_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                'beneficiary_nrc' => $this->session->userdata('nrc'),
+                'beneficiary_mobile_no' => $this->session->userdata('phoneNumber'),
+                'beneficiary_address' => $this->session->userdata('physicalAddress'),
+                'valid_from_date' => $created_date,
+                'valid_to_date' => $created_date,
+                // 'member_status' => $created_date,
+                'created_by' => $this->session->userdata('agent'),
+                'created_date' => $created_date,
+                'updated_by' => 0,
+                'updated_date' => '0000-00-00 00:00:00',
+                'deleted_by' => 0,
+                'deleted_date' => '0000-00-00 00:00:00',
+                'company_id' => 16,
+
+            ));
+
+            $policyMemderId = $this->db->select('id')
+                    ->from('policy_member')
+                    ->where('policy_id', $policyIdRow[0]->id)
+                    ->get();
+
+            $policyMemderIdRow = $policyMemderId->result();
+
+            // var_dump($policyMemderIdRow[0]->id);
+
+            // Insert data into policy dependents
+            $this->db->insert('policy_dependents', array(
+                'policy_member_id'   => $policyMemderIdRow[0]->id,
+                'group_policy_id'   => 0,
+                'dependent_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                'planDependent_id' => $this->session->userdata('plan_id'),
+                'gender' => $this->session->userdata('gender1'),
+                'NRC' => $this->session->userdata('nrc'),
+                'date_of_birth' => $this->session->userdata('date1'),
+                'premium'   => $this->session->userdata('premium'),
+            ));
+
+            // insert in payments
+
+            $this->db->insert('payment_receipts', array(
+                'receipt_no'   => '0972160250054856',
+                'customer_id'   => $customerId,
+                'policy_id' => $policyIdRow[0]->id,
+                'policy_no' => $policy_code,
+                'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                'plan_id' => $this->session->userdata('plan_id'),
+                'policy_member_id' => $policyMemderIdRow[0]->id,
+                'date' => $created_date,
+                'collection_mode_id' => $this->session->userdata('paymentId'),
+                'doc_reference_date'   => $created_date,
+                'amount'   => $this->session->userdata('premium'),
+                'company_id'   => 16,
+            ));
+
+
+            redirect('home');
         }
     }
 
@@ -816,47 +612,35 @@ class Appointment extends CI_Controller
         redirect('home');
     }
 
-    public function goHome()
-    {
-        redirect('home');
-    }
-
-    // public function checkMobilePayment(){
-
-    // }
 
     public function done()
     {
-        $reference = $this->session->userdata('ref');
+        $reference = $this->input->post('ref', true);
         // $reference = '0972160250054856';
         // echo $reference;
 
-        $status = $this->check_payment_status($this->session->userdata('ref'));
-        // $status = true
+        $status = $this->check_payment_status($reference);
 
-        // var_dump($status);
-        $this->paymentSucc();
-
+         $this->paymentSucc();
+/*
         if (strlen(stristr($status, "Succ")) > 0) {
-
             $this->paymentSucc();
 
             echo '
             <link href="' . base_url('assets_web/css/semantic.css') . '" type="text/css" rel="stylesheet">
             <div style="width:100%; height: 100%;" >
-                ' . form_open_multipart("website/appointment/goHome", 'id="processInfo"') . '
                 <div class="ui success message" style="width:50%; padding:10px; margin:auto; margin-top:40px;">
                     <div class="header">
                         Your user registration was successful.
                     </div>
                     <p>You may now continue to home page</p>
-    
+
                     <button type="submit" id="paymentSucc" class="ui green button">
                         Go Home
                     </button>
                 </div>
-                ' . form_close() . '
-            </div>';
+            </div>
+            ';
         } else {
             echo '
                 <link href="' . base_url('assets_web/css/semantic.css') . '" type="text/css" rel="stylesheet">
@@ -867,7 +651,7 @@ class Appointment extends CI_Controller
                             Transaction failed
                         </div>
                         <ul class="list">
-                            <li>You must make your mobile money password is correct.</li>
+                            <li>You must make your mobile money password is collect.</li>
                             <li>You need to have sufficient funds in your mobile money account.</li>
                         </ul>
 
@@ -883,14 +667,12 @@ class Appointment extends CI_Controller
                 </div>
                 ';
         }
+        */
     }
 
 
     function check_payment_status($reference)
     {
-        // var_dump($reference);
-        // var_dump($this->session->userdata("agentCode"));
-
         $soap_request = '<?xml version="1.0" encoding="UTF-8"?>
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:kon="http://konik.cgrate.com">
           <soapenv:Header>
@@ -937,7 +719,6 @@ class Appointment extends CI_Controller
         $xml = new SimpleXMLElement($response);
         $transactionStatus = $xml->xpath('//responseMessage')[0];
         //$transactionStatus = strip_tags($output);
-        // var_dump($transactionStatus);
 
         return $transactionStatus;
     }
@@ -1000,7 +781,7 @@ class Appointment extends CI_Controller
                         $f_fixed_premium</strong>
                     </li>
                 </ul>
-                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                     Cover
                 </button>
             </div>
@@ -1062,7 +843,7 @@ class Appointment extends CI_Controller
                                 Get Started at <strong>K$f_fixed_premium</strong>
                             </li>
                         </ul>
-                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                              Cover
                         </button>
                     </div>
@@ -1128,7 +909,7 @@ class Appointment extends CI_Controller
                             $f_fixed_premium</strong>
                         </li>
                     </ul>
-                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "  class='selection_btn btn btn-primary'>Select
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "  class='selection_btn btn btn-primary'>Select
                         Cover
                     </button>
                 </div>
@@ -1193,7 +974,7 @@ class Appointment extends CI_Controller
                             $f_fixed_premium</strong>
                         </li>
                     </ul>
-                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                         Cover
                     </button>
                 </div>
@@ -1258,7 +1039,7 @@ class Appointment extends CI_Controller
                         $f_fixed_premium</strong>
                     </li>
                 </ul>
-                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                     Cover
                 </button>
             </div>
@@ -1324,7 +1105,7 @@ class Appointment extends CI_Controller
                                 $f_fixed_premium</strong>
                             </li>
                         </ul>
-                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                             Cover
                         </button>
                     </div>
@@ -1390,7 +1171,7 @@ class Appointment extends CI_Controller
                             $f_fixed_premium</strong>
                         </li>
                     </ul>
-                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                    <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                         Cover
                     </butoon>
                 </div>
@@ -1456,7 +1237,7 @@ class Appointment extends CI_Controller
                                     $f_fixed_premium</strong>
                                 </li>
                             </ul>
-                            <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group_family' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                            <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group_family' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                                 Cover
                             </button>
                         </div>
@@ -1521,54 +1302,11 @@ class Appointment extends CI_Controller
                         $f_fixed_premium</strong>
                     </li>
                 </ul>
-                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-plantitle='" . $PlanName . "' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
+                <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_per_individual_single' data-sum=" . $f_sum_assured . " data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . " class='selection_btn btn btn-primary'>Select
                     Cover
                 </button>
             </div>
             </div>";
-        }
-    }
-
-    public function uploadCSVfile()
-    {
-
-        $uniqid = "rand(1,90000)";
-        $_SESSION['uniqid'] = $uniqid;
-
-        $file_formats = array("csv");
-        $filepath = "assets_web/docs/excel/";
-        $_SESSION['filepath'] = $filepath;
-
-        if (isset($_POST['submitbtn']) && $_POST['submitbtn'] == "Submit") {
-
-            $name = $_FILES['imagefile']['name']; // filename to get file's extension
-            $size = $_FILES['imagefile']['size'];
-
-            if (strlen($name)) {
-                $extension = substr($name, strrpos($name, '.') + 1);
-                if (in_array($extension, $file_formats)) { // check it if it's a valid format or not
-                    if ($size < (8048 * 1024)) { // check it if it's bigger than 2 mb or no
-
-                        $full_file = $filepath . $uniqid . '.csv';
-                        $tmp = $_FILES['imagefile']['tmp_name'];
-                        if (move_uploaded_file($tmp, $full_file)) {
-                            // echo '<img class="preview" alt="" src="'.$filepath.'/img.jpg" />';
-                            // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
-                            echo "<script>alert('File uploaded successfully.')</script>";
-                        } else {
-                            echo "<script>alert('Could not move the file.')</script>";
-                            // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
-                        }
-                    } else {
-                        echo "<script>alert('Your file is too large. Maximum size allowed is 8MB.')</script>";
-                    }
-                } else {
-                    echo "<script>alert('Invalid file format. Please upload a valid .csv file')</script>";
-                }
-            } else {
-                echo "<script>alert('Please select a .csv file..!')</script>";
-            }
-            die();
         }
     }
 }

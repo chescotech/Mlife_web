@@ -7,7 +7,7 @@ memmber id
 $policies_rows = $this->db->select('*')
     ->from('policies AS po')
     ->where('po.id', $this->session->userdata('policy_id'))
-    ->join('plans As pl', 'pl.plan_code=po.policy_code', 'inner')
+    ->join('plans As pl', 'pl.id=po.plan_id', 'inner')
     ->join('plan_dependents As pld', 'pld.id=pl.id', 'inner')
     ->get();
 
@@ -40,33 +40,56 @@ $policiesInfo = $policies_rows->result();
         background-color: #FBFBFB;
     }
 
+    .container {
+        display: flex;
+        width: 100%;
+    }
+
     .content {
         width: 60%;
         margin: 50px auto;
     }
+
+    .userInfo {
+        width: 30%;
+        border: none;
+        border-left: 1px solid #ccc;
+        padding: 10px;
+        padding-top: 20px;
+    }
+
+    .circularImage {
+        width: 200px;
+        height: 150px;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #D9D9D9;
+        margin-bottom: 10px;
+    }
 </style>
 
+<link href="<?php base_url('assets_web/css/semantic.css') ?>" type="text/css" rel="stylesheet">
 <div class="mainView row">
     <!-- <div>sidebar</div> -->
+    <div class="container">
+        <div class="content">
+            <div style="margin-bottom: 30px">
+                <h5>Your Policy Details</h5>
+            </div>
+            <?php
 
-    <div class="content">
-        <div style="margin-bottom: 30px">
-            <h5>Your Policy Details</h5>
-        </div>
-        <?php
+            foreach ($policiesInfo as $policyInfo) {
+                $PlanName = $policyInfo->plan_name;
+                $Sum_assured = $policyInfo->sum_assured;
+                $Fixed_premium = $policyInfo->fixed_premium;
+                $plan_id = $policyInfo->plan_id;
+                $plan_code = $policyInfo->plan_code;
+                $policy_type = $policyInfo->policy_type;
 
-        foreach ($policiesInfo as $policyInfo) {
-            $PlanName = $policyInfo->plan_name;
-            $Sum_assured = $policyInfo->sum_assured;
-            $Fixed_premium = $policyInfo->fixed_premium;
-            $plan_id = $policyInfo->plan_id;
-            $plan_code = $policyInfo->plan_code;
-            $policy_type = $policyInfo->policy_type;
+                $f_sum_assured = number_format($this->session->userdata('sum_assured'));
+                $f_fixed_premium = number_format($this->session->userdata('fixed_premium'));
 
-            $f_sum_assured = number_format($this->session->userdata('sum_assured'));
-            $f_fixed_premium = number_format($this->session->userdata('fixed_premium'));
-
-            echo "<div class='card' style='width: 18rem; margin:5px'>
+                echo "<div class='card' style='width: 18rem; margin:5px'>
                     <div class='card-body'>
 
                         <h5 style='color:#3b3b3b'>
@@ -91,8 +114,54 @@ $policiesInfo = $policies_rows->result();
                     </button>
                     </div>
                     </div>";
-        }
-        ?>
+            }
+            ?>
+        </div>
+        <div class="userInfo">
+            <div style="margin-bottom: 30px">
+                <h5>Your Personal Details</h5>
+            </div>
+
+            <div>
+                <div class="circularImage">
+                    <img style="width:100%;" src="<?php if ($this->session->userdata('attachments') == '') {
+                                                        echo 'assets_web/img/default-profile.png';
+                                                    } else {
+                                                        echo 'uploads/' . $this->session->userdata('attachments');
+                                                    } ?>" alt="Profile">
+                </div>
+            </div>
+
+            <div>
+                <table style="width: 100%;">
+                    <tr>
+                        <td>Name</td>
+                        <td><?php echo $this->session->userdata('full_name') ?></td>
+                    </tr>
+                    <tr>
+                        <td>NRC Number</td>
+                        <td><?php echo $this->session->userdata('nrc') ?></td>
+                    </tr>
+                    <tr>
+                        <td>Mobile Number</td>
+                        <td><?php echo $this->session->userdata('mobile_no') ?></td>
+                    </tr>
+                    <tr>
+                        <td>Email address</td>
+                        <td><?php echo $this->session->userdata('email_id') ?></td>
+                    </tr>
+                    <tr>
+                        <td>Physical Address</td>
+                        <td><?php echo $this->session->userdata('address1') ?></td>
+                    </tr>
+                    <tr>
+                        <td>Postal Address</td>
+                        <td><?php echo $this->session->userdata('address2') ?></td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Modal -->
@@ -140,20 +209,21 @@ $policiesInfo = $policies_rows->result();
 
                                                         if ($mop == 'AIRTEL MOBILE MONEY') {
                                                             $mop_logo = './assets_web/img/icons/airtel-icon-ug.png';
-                                                            $input_name = 'airtel_number';
+                                                            $input_name = $mop;
                                                             $input_id = 'airtel_input';
                                                             $radio_id = 'airtel';
                                                         } elseif ($mop == 'MTN MOBILE MONEY') {
                                                             $mop_logo = './assets_web/img/icons/download.png';
-                                                            $input_name = '';
+                                                            $input_name = $mop;
                                                             $input_id = 'mtn_input';
                                                             $radio_id = 'mtn';
                                                         } elseif ($mop == 'ZAMTEL KWACHA') {
                                                             $mop_logo = './assets_web/img/icons/0wZc1TWg.png';
-                                                            $input_name = '';
+                                                            $input_name = $mop;
                                                             $input_id = 'zamtel_input';
                                                             $radio_id = 'zamtel';
                                                         }
+
                                                 ?>
 
                                                         <div style="width:100%">
@@ -165,15 +235,14 @@ $policiesInfo = $policies_rows->result();
                                                                     <input class="form-check-input mt-0" type="radio" value="" name="mobile_money" id="<?php echo $radio_id ?>" aria-label="Radio button for following text input" checked>
                                                                 </div>
 
-                                                                <input style="border: 1px solid #ccc" type="number" name="<?php echo $input_name ?>" id="<?php echo $input_id ?>" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="FALSE">
-                                                                <input type="hidden" name="id" value="<?php echo $id ?>">
+                                                                <input style="border: 1px solid #ccc" type="number" name="numberPhone" id="<?php echo $input_id ?>" class="form-control" placeholder="Enter phone number" aria-label="Text input with radio button" autocomplete="FALSE">
+                                                                <input type="hidden" name="paymentId" value="<?php echo $id ?>">
                                                             </div>
                                                         </div>
 
                                                 <?php
                                                     }
                                                 }
-
                                                 ?>
 
 
@@ -238,11 +307,11 @@ $policiesInfo = $policies_rows->result();
                                             <h3>Order Summary</h3>
                                         </div>
                                         <div id="oderContainer" style="padding-left: 20px">
-                                            <!-- <div id="ordersummarycover"></div> -->
-                                            <!-- <div id="ordersummarytype"></div> -->
-                                            <!-- <div id="ordersummary3"></div> -->
-                                            <!-- <div id="ordersummarycover4"></div> -->
-                                            <!-- <h5 id="ordersummarycoverpay"></h5> -->
+                                            <div id="ordersummarycover"></div>
+                                            <div id="ordersummarytype"></div>
+                                            <div id="ordersummary3"></div>
+                                            <div id="ordersummarycover4"></div>
+                                            <h5 id="ordersummarycoverpay"></h5>
                                             <h5 id="ordersummarycoverassured"></h5>
                                         </div>
                                     </div>
