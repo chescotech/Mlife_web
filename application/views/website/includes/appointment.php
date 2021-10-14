@@ -980,7 +980,7 @@ $Nrcs = $isNrc->result();
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" name="terms" class="custom-control-input" id="customCheck2">
                                     <label class="custom-control-label" for="customCheck2">
-                                        I agree to the terms and conditions
+                                        I have read and agree to the terms and conditions
                                     </label>
                                 </div>
                             </div>
@@ -1107,7 +1107,7 @@ $Nrcs = $isNrc->result();
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
                                                 <label class="form-check-label" for="flexRadioDefault2" autocomplete="off">
-                                                    Combined insurance cover
+                                                    Combined Insurance (Accidental Death , Permanent Disability, Hospitalisation)
                                                 </label>
                                             </div>
                                         </div>
@@ -1195,7 +1195,7 @@ $Nrcs = $isNrc->result();
                                                     <input class="form-check-input" type="radio" name="cover1" id="covertype2">
 
                                                     <label class="form-check-label" for="covertype2">
-                                                        <h6> <strong>Pay per trip cover </strong> <span style="color:coral">( Premiums per Week ZMW )</span>
+                                                        <h6> <strong>Pay per trip cover </strong> <span style="color:coral">( Up to a maximum of 7 days )</span>
                                                         </h6>
                                                     </label>
                                                 </div>
@@ -1614,8 +1614,6 @@ $Nrcs = $isNrc->result();
                                                                     <div class="row">
 
                                                                         <?php
-
-
                                                                         $cover_benefits_id = $this->db->select("id")
                                                                             ->from('cover_benefits')
                                                                             ->like('title', 'ACCIDENTAL DEATH BENEFIT')
@@ -1733,7 +1731,7 @@ $Nrcs = $isNrc->result();
                                                         <input class="form-check-input" type="radio" name="com_cover1" id="com_covertype2">
 
                                                         <label class="form-check-label" for="com_covertype2">
-                                                            <h6> <strong>Pay per trip cover </strong> <span style="color:coral">( Premiums per Week ZMW )</span>
+                                                            <h6> <strong>Pay per trip cover </strong> <span style="color:coral">( Up to a maximum of 7 days )</span>
                                                             </h6>
                                                         </label>
                                                     </div>
@@ -1760,7 +1758,7 @@ $Nrcs = $isNrc->result();
                                                                     </div>
 
                                                                     <div style="margin-left: 40px;">
-                                                                        <input class="form-check-input" type="radio" name="com_Premium2" id="com_PremiumPlan4">
+                                                                        <input class="form-check-input" disabled type="radio" name="com_Premium2" id="com_PremiumPlan4">
                                                                         <label class="form-check-label" for="com_PremiumPlan4">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
                                                                                 Premium per Individual <span style="color:#6199F5;">(Group
@@ -1794,7 +1792,7 @@ $Nrcs = $isNrc->result();
                                                                                 inner JOIN plans on plans.id=plan_dependents.plan_id
                                                                                 inner join cover_types on cover_types.id=plans.cover_type_id
                                                                                 INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
-                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                WHERE  cover_types.title LIKE '%INDI%' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
                                                                                 AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
                                                                                 AND fixed_premium != '0'
                                                                                 GROUP BY plan_name
@@ -1811,7 +1809,7 @@ $Nrcs = $isNrc->result();
                                                                                 inner JOIN plans on plans.id=plan_dependents.plan_id
                                                                                 inner join cover_types on cover_types.id=plans.cover_type_id
                                                                                 INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
-                                                                                WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                                WHERE  cover_types.title LIKE '%INDI%' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
                                                                                 AND ( plans.plan_name LIKE '%TRIP%' AND plans.plan_name LIKE '%COMBI%' )
                                                                                 AND plan_name = '$PlanName'
                                                                                 ");
@@ -2027,7 +2025,7 @@ $Nrcs = $isNrc->result();
                                                                     </div>
 
                                                                     <div style="margin-left: 40px;">
-                                                                        <input class="form-check-input" type="radio" name="com_Premium4" id="com_PremiumPlan6">
+                                                                        <input class="form-check-input" disabled type="radio" name="com_Premium4" id="com_PremiumPlan6">
                                                                         <label class="form-check-label" for="com_PremiumPlan6">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
                                                                                 Monthly Premium per Group <span style="color:#6199F5;">(min 10)</span></strong>
@@ -2295,7 +2293,7 @@ $Nrcs = $isNrc->result();
                                                                     </div>
 
                                                                     <div style="margin-left: 40px;">
-                                                                        <input class="form-check-input" type="radio" name="com_Premium4" id="com_PremiumPlan8">
+                                                                        <input class="form-check-input" disabled type="radio" name="com_Premium4" id="com_PremiumPlan8">
                                                                         <label class="form-check-label" for="com_PremiumPlan8">
                                                                             <strong><span style="color:red; font-size:17px">-></span>
                                                                                 Monthly Premium per Group <span style="color:#6199F5;">(min 10)</span></strong>
@@ -2329,7 +2327,7 @@ $Nrcs = $isNrc->result();
                                                                                 inner join cover_types on cover_types.id=plans.cover_type_id
                                                                                 INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
                                                                                 WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
-                                                                                AND ( plans.plan_name LIKE '%FAMILY%' AND plans.plan_name LIKE '%COMBI%' )
+                                                                                AND ( plans.plan_name LIKE '%FAMI%' AND plans.plan_name LIKE '%COMBI%' )
                                                                                 AND fixed_premium != '0'
                                                                                 GROUP BY plan_name
                                                                             ");
@@ -2591,7 +2589,7 @@ $Nrcs = $isNrc->result();
                                                                             inner JOIN plans on plans.id=plan_dependents.plan_id
                                                                             inner join cover_types on cover_types.id=plans.cover_type_id
                                                                             INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
-                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
                                                                             AND ( plans.plan_name LIKE '%DTI STUDENT%' AND plans.plan_name LIKE '%COMBI%' )
                                                                             AND fixed_premium != '0'
                                                                             GROUP BY plan_name
@@ -2611,7 +2609,7 @@ $Nrcs = $isNrc->result();
                                                                             inner JOIN plans on plans.id=plan_dependents.plan_id
                                                                             inner join cover_types on cover_types.id=plans.cover_type_id
                                                                             INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
-                                                                            WHERE  cover_types.title !='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                                                                            WHERE  cover_types.title ='GROUP' AND plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
                                                                             AND ( plans.plan_name LIKE '%DTI STUDENT%' AND plans.plan_name LIKE '%COMBI%' )
                                                                             AND plan_name = '$PlanName'
                                                                             ");
@@ -3051,8 +3049,7 @@ $Nrcs = $isNrc->result();
                                                 </div>
                                                 <div id="oderContainer" style="padding-left: 20px">
                                                     <div id="names"></div>
-                                                    <h5>Your Names : <span style="color:red"><?php echo $this->session->userdata('last_name') . ' ' . $this->session->userdata('other_name'); ?> </span></h5>
-
+             
                                                     <div id="ordersummarytype"></div>
 
                                                     <div id="ordersummarytype_name"></div>

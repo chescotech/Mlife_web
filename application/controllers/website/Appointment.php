@@ -962,6 +962,7 @@ class Appointment extends CI_Controller
             ->join('cover_types', 'cover_types.id=plans.cover_type_id', 'inner')
             ->where('cover_benefits_type', $cover_benefits_id[0]->id)
             ->not_like('cover_types.title', 'GROUP')
+            ->not_like('plans.plan_name', 'COMB')
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'PAY AS')
             ->get()
@@ -1030,6 +1031,7 @@ class Appointment extends CI_Controller
             ->like('cover_types.title', 'GROUP')
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'PAY AS')
+            ->not_like('plans.plan_name', 'COMB')
             ->get()
             ->result();
 

@@ -27,7 +27,7 @@
                         be by viewing payment options online. 
                         We can help you find the plan that best suits your needs.
                     </p>
-                    <a href="<?= base_url('doctors/timetable')?>" class="btn btn-link">View Payment Options <i class="ti-arrow-right"></i></a>
+                   
                 </div>
             </div>
             <!-- Benefits -->
