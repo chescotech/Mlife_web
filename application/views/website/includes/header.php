@@ -10,6 +10,13 @@ $settings = $this->db->select("language")->get('setting')->row();
         </button>
     </div>
 
+    <script>
+(function(w,d,u){
+var s=d.createElement('script');s.async=true;s.src=u+'?'+(Date.now()/60000|0);
+var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
+})(window,document,'https://mlife.3cx.sc/upload/crm/site_button/loader_1_xivbn3.js');
+</script>
+
     <!-- /.Middle bar -->
     <nav class="navbar navbar-expand-lg d-none d-lg-block header-sticky">
         <div class="container">

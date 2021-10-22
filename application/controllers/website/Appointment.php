@@ -303,6 +303,7 @@ class Appointment extends CI_Controller
     public function mobile()
     {
 
+
         if ($this->input->post("recharge", true)) {
 
             $this->session->set_userdata([
@@ -345,7 +346,7 @@ class Appointment extends CI_Controller
                 'othernameArr' => $this->input->post('othername', true),
                 'surnameArr' => $this->input->post('surname', true),
                 'coveredArr' => $this->input->post('covered', true),
-                'groupTotal' => $this->input->post('groupTotal')
+                'groupTotal' => $this->input->post('groupTotal'),
 
             ]);
 
@@ -357,6 +358,7 @@ class Appointment extends CI_Controller
             $this->session->set_userdata([
                 'last_name' => $this->input->post("last_name", true),
                 'other_name' => $this->input->post("other_name", true),
+                'full_name' => $this->input->post("last_name", true) . '' . $this->input->post("other_name", true),
                 'postalAddress' => $this->input->post("postalAddress", true),
                 'physicalAddress' => $this->input->post("physicalAddress", true),
                 'emailAddress' => $this->input->post("emailAddress", true),
@@ -373,6 +375,7 @@ class Appointment extends CI_Controller
                 'paymentId' => $this->input->post("paymentId", true),
                 'recharge' => $this->input->post("recharge", true),
                 'phone_no' => $this->input->post("numberPhone", true),
+                'Reg_type' => $this->input->post("Reg_type", true),
                 'total' => $this->input->post("total", true),
                 'agentCode' => $this->input->post("agent", true),
             ]);
@@ -380,6 +383,8 @@ class Appointment extends CI_Controller
 
             $this->MobilePaymentProcessor($this->session->userdata("phone_no"), $this->session->userdata("premium"));
         }
+
+        $this->createCustomerTemp($this->session->userdata('Reg_type'));
     }
 
     function MobilePaymentProcessor($number, $amount)
@@ -488,8 +493,6 @@ class Appointment extends CI_Controller
 
                    
                 </script>';
-
-                
     }
 
     public function paymentSucc()
@@ -536,12 +539,14 @@ class Appointment extends CI_Controller
                     'email_id' => $this->session->userdata('emailAddress'),
                     'address1' => $this->session->userdata('physicalAddress'),
                     'address2' => $this->session->userdata('postalAddress'),
-                    'customer_type' => 'Company',
+                    'customer_type' => 'Group',
                     'created_by' => $this->session->userdata('agentCode'),
                     'created_date' => $created_date,
                     'company_id' => 16,
                     'attachments' => $this->session->userdata('attachments')
                 ));
+
+
 
                 $customerId = $this->db->insert_id();
                 $policy_code = "DTI" . "-000000-" . $customerId;
@@ -692,6 +697,8 @@ class Appointment extends CI_Controller
                     'company_id' => 16,
                 ));
 
+
+
                 // get customer id from customers table
 
                 $customerId = $this->db->insert_id();
@@ -775,7 +782,7 @@ class Appointment extends CI_Controller
                 $this->db->insert('policy_dependents', array(
                     'policy_member_id'   => $policyMemderIdRow[0]->id,
                     'group_policy_id'   => 0,
-                    'dependent_name' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                    'dependent_name' => $this->session->userdata('last_name') . " " . $this->session->userdata('other_name'),
                     'planDependent_id' => $this->session->userdata('plan_id'),
                     'gender' => $this->session->userdata('gender1'),
                     'NRC' => $this->session->userdata('nrc'),
@@ -790,7 +797,7 @@ class Appointment extends CI_Controller
                     'customer_id'   => $customerId,
                     'policy_id' => $policyIdRow[0]->id,
                     'policy_no' => $policy_code,
-                    'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
+                    'policy_holder' => $this->session->userdata('last_name') . " " . $this->session->userdata('other_name'),
                     'plan_id' => $this->session->userdata('plan_id'),
                     'policy_member_id' => $policyMemderIdRow[0]->id,
                     'date' => $created_date,
@@ -805,9 +812,70 @@ class Appointment extends CI_Controller
 
             }
 
+            $this->DeleteCustomer_temp($this->session->userdata('Reg_type'));
+
             $this->session->set_userdata([
                 'attachments' => '',
             ]);
+        }
+    }
+
+    function createCustomerTemp($type)
+    {
+        $created_date = date('Y-m-d H:i:s');
+
+        if ($type == "Company") {
+            $this->db->insert('customers_temp', array(
+                'f_name' => '',
+                'l_name' => '',
+                'c_name'   => $this->session->userdata('c_name'),
+                'c_register_no'   => $this->session->userdata('c_reg'),
+                // 'date_of_birth' => $rows->dob,
+                // 'gender'   => $rows->gender,
+                // 'contact_person' => $this->input->post('f_name',true),
+                // 'nrc'      => $rows->nrc,
+                'mobile_no' => $this->session->userdata('phoneNumber'),
+                'email_id' => $this->session->userdata('emailAddress'),
+                'address1' => $this->session->userdata('physicalAddress'),
+                'address2' => $this->session->userdata('postalAddress'),
+                'customer_type' => 'Group',
+                'created_by' => $this->session->userdata('agentCode'),
+                'status' => 'Inactive',
+                'created_date' => $created_date,
+                'company_id' => 16,
+               
+            ));
+        } else {
+            $this->db->insert('customers_temp', array(
+                'f_name'   => $this->session->userdata('last_name'),
+                'l_name'   => $this->session->userdata('other_name'),
+                'date_of_birth' => $this->session->userdata('date1'),
+                'gender'   => $this->session->userdata('gender1'),
+                // 'contact_person' => $this->input->post('f_name',true),
+                'nrc'      => $this->session->userdata('nrc'),
+                'mobile_no' => $this->session->userdata('phoneNumber'),
+                'email_id' => $this->session->userdata('emailAddress'),
+                'address1' => $this->session->userdata('physicalAddress'),
+                'address2' => $this->session->userdata('postalAddress'),
+                'occupation_id' => $this->session->userdata('occupations'),
+                'customer_type' => 'Individual',
+                'created_by' => $this->session->userdata('agentCode'),
+                'status' => 'Inactive',
+                'created_date' => $created_date,                
+                'company_id' => 16,
+            ));
+        }
+    }
+
+
+    function DeleteCustomer_temp($type)
+    {
+        if ($type != "Company") {
+            $nrc = $this->session->userdata('nrc');
+            $this->db->query("DELETE FROM customers_temp WHERE nrc='$nrc' ");
+        } else {
+            $c_name = $this->session->userdata('c_name');
+            $this->db->query("DELETE FROM customers_temp WHERE c_name='$c_name' ");
         }
     }
 
@@ -835,7 +903,7 @@ class Appointment extends CI_Controller
         // $status = true
 
         // var_dump($status);
-        $this->paymentSucc();
+        // $this->paymentSucc();
 
         if (strlen(stristr($status, "Succ")) > 0) {
 
@@ -965,6 +1033,7 @@ class Appointment extends CI_Controller
             ->not_like('plans.plan_name', 'COMB')
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'PAY AS')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1032,6 +1101,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'PAY AS')
             ->not_like('plans.plan_name', 'COMB')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1095,6 +1165,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'TRIP')
             ->not_like('plans.plan_name', 'COMBI')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1161,6 +1232,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'TRIP')
             ->not_like('plans.plan_name', 'COMBI')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1225,6 +1297,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'WAY')
             ->not_like('plans.plan_name', 'COMBI')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1291,6 +1364,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'WAY')
             ->not_like('plans.plan_name', 'COMBI')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1357,6 +1431,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'FAMILY')
             ->not_like('plans.plan_name', 'COMB')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1423,6 +1498,7 @@ class Appointment extends CI_Controller
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'FAMILY')
             ->not_like('plans.plan_name', 'COMB')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1488,6 +1564,7 @@ class Appointment extends CI_Controller
             ->not_like('cover_types.title', 'GROUP')
             ->like('plans.product_id', $product_id[0]->id)
             ->like('plans.plan_name', 'DTI STUDENT')
+            ->order_by("sum_assured", "ASC")
             ->get()
             ->result();
 
@@ -1534,14 +1611,17 @@ class Appointment extends CI_Controller
     public function uploadCSVfile()
     {
 
-        $uniqid = "rand(1,90000)";
-        $_SESSION['uniqid'] = $uniqid;
+        $uniqid = rand(1,90000);
+
+        $this->session->set_userdata([
+            'docfile' => $uniqid,
+        ]);
 
         $file_formats = array("csv");
         $filepath = "assets_web/docs/excel/";
         $_SESSION['filepath'] = $filepath;
 
-        if (isset($_POST['submitbtn']) && $_POST['submitbtn'] == "Submit") {
+        // if (isset($_POST['submitbtn']) && $_POST['submitbtn'] == "Submit") {
 
             $name = $_FILES['imagefile']['name']; // filename to get file's extension
             $size = $_FILES['imagefile']['size'];
@@ -1556,21 +1636,59 @@ class Appointment extends CI_Controller
                         if (move_uploaded_file($tmp, $full_file)) {
                             // echo '<img class="preview" alt="" src="'.$filepath.'/img.jpg" />';
                             // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
-                            echo "<script>alert('File uploaded successfully.')</script>";
+                            echo $this->session->userdata('docfile');
                         } else {
-                            echo "<script>alert('Could not move the file.')</script>";
+                            echo "Could not move the file.";
                             // echo '<img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive">';
                         }
                     } else {
-                        echo "<script>alert('Your file is too large. Maximum size allowed is 8MB.')</script>";
+                        echo "Your file is too large. Maximum size allowed is 8MB.";
                     }
                 } else {
-                    echo "<script>alert('Invalid file format. Please upload a valid .csv file')</script>";
+                    echo "Invalid file format. Please upload a valid .csv file";
                 }
             } else {
-                echo "<script>alert('Please select a .csv file..!')</script>";
+                echo "Please select a .csv file..!";
             }
+
             die();
+        // }else{
+        //     echo "Invalid";
+        // }
+    }
+
+    public function planName()
+    {
+        $PlanName = $_POST['planname'];
+        $plansList_details = $this->db->query("SELECT cover_benefits.title,plans.plan_code, plan_id, plans.plan_name AS plan_name,
+                    sum_assured,fixed_premium,min_age,max_age,cover_types.title AS cover_title FROM `plan_dependents`
+                    inner JOIN plans on plans.id=plan_dependents.plan_id
+                    inner join cover_types on cover_types.id=plans.cover_type_id
+                    INNER JOIN cover_benefits on cover_benefits.id=plan_dependents.cover_benefits_type
+                    WHERE  plans.product_id =(SELECT id FROM `products` WHERE title='DOMESTIC TRAVEL INSURANCE')
+                    AND (plans.plan_name LIKE '%COMBI%' )
+                    AND plan_name = '$PlanName' GROUP BY title
+                ");
+
+        $results_details = $plansList_details->result_array();
+        $results_no = $plansList_details->num_rows();
+        echo "Combined sums assured: <br>";
+        if ($results_no > 0) {
+            echo $results_no." sums found ".$PlanName;
+            // print_r($results_details);
+            foreach ($results_details as $planrow_details) {
+                // echo $planrow_details['sum_assured']." sums found ".$results_details;
+                $title = $planrow_details['title'];
+                $Sum_assured = $planrow_details['sum_assured'];
+
+                $f_sum_assured = number_format($Sum_assured);
+
+                echo "<u> $title </u> : K
+                $f_sum_assured </br>";
+            }
+        } else {
+            echo "Error getting the sums!";
         }
     }
+
 }

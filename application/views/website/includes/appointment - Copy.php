@@ -1699,7 +1699,7 @@ $Nrcs = $isNrc->result();
                                                                                         </li>
                                                                                     </ul>
                                                                                     <?php echo "
-                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
                                                                                         $f_sum_assured . " data-plantitle='" . $PlanName . "' data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
                                                                                             class='selection_btn btn btn-primary'>Select Cover
                                                                                         </button>";
@@ -1973,7 +1973,7 @@ $Nrcs = $isNrc->result();
                                                                                         </li>
                                                                                     </ul>
                                                                                     <?php echo "
-                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
                                                                                         $f_sum_assured . " data-plantitle='" . $PlanName . "' data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
                                                                                             class='selection_btn btn btn-primary'>Select Cover
                                                                                         </button>";
@@ -2243,7 +2243,7 @@ $Nrcs = $isNrc->result();
                                                                                         </li>
                                                                                     </ul>
                                                                                     <?php echo "
-                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
                                                                                         $f_sum_assured . " data-plantitle='" . $PlanName . "' data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
                                                                                             class='selection_btn btn btn-primary'>Select Cover
                                                                                         </button>";
@@ -2512,7 +2512,7 @@ $Nrcs = $isNrc->result();
                                                                                         </li>
                                                                                     </ul>
                                                                                     <?php echo "
-                                                                                        <button onclick='selectionBtn(this);' data-type='Combined' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
+                                                                                        <button onclick='selectionBtn(this);' data-type='Accidental' data-policy='pay_as_u_go' data-policytype='premium_group' data-sum=" .
                                                                                         $f_sum_assured . "  data-plantitle='" . $PlanName . "' data-premium=" . $f_fixed_premium . " data-planid=" . $plan_id . " data-plancode=" . $plan_code . "
                                                                                             class='selection_btn btn btn-primary'>Select Cover
                                                                                         </button>";
@@ -4345,27 +4345,8 @@ $Nrcs = $isNrc->result();
                         // console.log(plan_type_selected);
                         // console.log(plan_name);
 
-                        // $('#sum').html('Sum assured K ' + sum_assured_selected)
+                        $('#sum').html('Sum assured K ' + sum_assured_selected)
                         $('#planType').html('Plan type ' + '<span style="color:green">' + plan_name + '</span>')
-                        ///// add data fromm db
-                        if(cover_type_selected == 'Combined'){
-                            var pname = $(identifier).data('plantitle');
-                            console.log(pname);
-                            var PlanName = '<?php echo $PlanName; ?>';
-                            console.log('YYYYYY');
-                            $.ajax({  
-                                type: 'POST',  
-                                url: '<?= base_url('website/appointment/planName') ?>', 
-                                data: { planname: pname },
-                                success: function(response) {
-                                    $('#sum').html(response)
-                                    // console.log(response)
-                                }
-                            });
-                        }else{
-                            $('#sum').html('Sum assured K ' + sum_assured_selected)
-                        }
-                        ///// add data fromm db
 
                         table_type_select = policy_type_selected
 
