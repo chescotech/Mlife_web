@@ -1,5 +1,8 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+include 'VisaDAo.php';
+
+
 
 class Appointment extends CI_Controller
 {
@@ -215,11 +218,11 @@ class Appointment extends CI_Controller
                 'attachments' => $_FILES["file"]["name"],
             ]);
         } else {
-            $filelink =  $this->session->userdata('attachments') . ', ' . $_FILES["file"]["name"];
+            $filelink = $_FILES["file"]["name"];
 
-            var_dump($filelink);
-            var_dump($this->session->userdata('attachments'));
-            var_dump($_FILES["file"]["name"]);
+            // var_dump($filelink);
+            // var_dump($this->session->userdata('attachments'));
+            // var_dump($_FILES["file"]["name"]);
 
             $this->session->set_userdata([
                 'attachments' => $filelink,
@@ -314,12 +317,14 @@ class Appointment extends CI_Controller
                 'premium' => $this->input->post("5", true),
                 'sumasured' => $this->input->post("4", true),
                 'phone_no' => $this->input->post("numberPhone", true),
+                'recharge_visa' => false,
+                'recharge' => $this->input->post("recharge", true),
             ]);
 
             $this->MobilePaymentProcessor($this->input->post("numberPhone", true), $this->input->post("4", true));
         } else if ($this->input->post("Reg_type", true) == "Company") {
             // var_dump($this->input->post('premium', true));
-
+            
             $this->session->set_userdata([
                 'c_name' => $this->input->post("c_name", true),
                 'c_reg' => $this->input->post("c_reg", true),
@@ -330,9 +335,11 @@ class Appointment extends CI_Controller
                 'policy_type' => $this->input->post("2", true),
                 'plan_id' => $this->input->post("6", true),
                 'plan_code' => $this->input->post("7", true),
+                'plan_name' => $this->input->post("plan_name", true),
                 'premium' => $this->input->post("5", true),
                 'sumasured' => $this->input->post("4", true),
                 'paymentId' => $this->input->post("paymentId", true),
+                'recharge_visa' => false,
                 'recharge' => $this->input->post("recharge", true),
                 'phone_no' => $this->input->post("numberPhone", true),
                 'total' => $this->input->post("total", true),
@@ -349,7 +356,7 @@ class Appointment extends CI_Controller
                 'groupTotal' => $this->input->post('groupTotal'),
 
             ]);
-
+            
             // var_dump($this->session->userdata("groupTotal"));
             // var_dump($this->session->userdata("phone_no"));
             $this->MobilePaymentProcessor($this->session->userdata("phone_no"), $this->session->userdata("groupTotal"));
@@ -370,9 +377,11 @@ class Appointment extends CI_Controller
                 'policy_type' => $this->input->post("2", true),
                 'plan_id' => $this->input->post("6", true),
                 'plan_code' => $this->input->post("7", true),
+                'plan_name' => $this->input->post("plan_name", true),
                 'premium' => $this->input->post("5", true),
                 'sumasured' => $this->input->post("4", true),
                 'paymentId' => $this->input->post("paymentId", true),
+                'recharge_visa' => false,
                 'recharge' => $this->input->post("recharge", true),
                 'phone_no' => $this->input->post("numberPhone", true),
                 'Reg_type' => $this->input->post("Reg_type", true),
@@ -382,6 +391,195 @@ class Appointment extends CI_Controller
             // }
 
             $this->MobilePaymentProcessor($this->session->userdata("phone_no"), $this->session->userdata("premium"));
+        }
+
+        $this->createCustomerTemp($this->session->userdata('Reg_type'));
+    }
+
+    public function visaPaymentRedirect(){
+        // Used for testing 
+        // $reference = $this->verifyToken('D81F072D-5028-4336-A6C5-41C10E83D750');
+        $reference = '';
+
+        if(!empty($_GET['TransactionToken'])){
+            $reference = $this->verifyToken($_GET['TransactionToken']);
+        }
+
+        if($reference =="Transaction Paid" ){
+            $this->paymentSucc();
+            echo '
+            <link href="' . base_url('assets_web/css/semantic.css') . '" type="text/css" rel="stylesheet">
+            <div style="width:100%; height: 100%;" >
+                ' . form_open_multipart("website/appointment/goHome", 'id="processInfo"') . '
+                <div class="ui success message" style="width:50%; padding:10px; margin:auto; margin-top:40px;">
+                    <div class="header">
+                        Your user registration was successful.
+                    </div>
+                    <p>You may now continue to home page</p>
+    
+                    <button type="submit" id="paymentSucc" class="ui green button">
+                        Go Home
+                    </button>
+                </div>
+                ' . form_close() . '
+            </div>';
+            }else{
+                echo '
+                <link href="' . base_url('assets_web/css/semantic.css') . '" type="text/css" rel="stylesheet">
+                <div style="width:100%; height: 100%;" >
+                ' . form_open_multipart("website/appointment/paymentError", 'id="processInfo"') . '
+                    <div class="ui error message" style="width:50%; padding:10px; margin:auto; margin-top:40px;">
+                        <div class="header">
+                            Transaction failed '.$reference.'
+                        </div>
+                        <ul class="list">
+                            <li>You must make your card details are correct.</li>'.$status.'
+                            <li>You need to have sufficient funds in your bank account.</li>
+                        </ul>
+
+                        <button type="submit" id="paymentError" class="ui orange button">
+                            Back
+                        </button>
+
+                        <a href=' . base_url("website/appointment/VISACard") . ' id="paymentError" class="ui orange button">
+                            Retry again
+                        </a>
+                    </div>
+                    ' . form_close() . '
+                </div>
+                ';
+            }
+    }
+
+    public function verifyToken($token) {
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://secure.3gdirectpay.com/API/v6/',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '<?xml version="1.0" encoding="utf-8"?>
+            <API3G>
+                <CompanyToken>9F416C11-127B-4DE2-AC7F-D5710E4C5E0A</CompanyToken>
+                <Request>verifyToken</Request>
+                <TransactionToken>' . $token . '</TransactionToken>
+            </API3G>',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/xml'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        $oXML = new SimpleXMLElement($response);
+        $ResultExplanation = (string) $oXML->ResultExplanation;
+        return $ResultExplanation;
+    }
+
+    public function visaPayment($amount){
+        // $this->visaPaymentRedirect();
+        $DAO = new VisaDAo();
+
+        $description = "Payment for Domestic Travel Policy";
+        echo ''.$DAO->redirectToken($DAO->generateToken($amount, $description));
+    }
+
+    public function VISACard()
+    {
+
+        if ($this->input->post("recharge", true)) {
+
+            $this->session->set_userdata([
+                'phoneNumber' => $this->input->post("phoneNumber", true),
+                'policy_type' => $this->input->post("2", true),
+                'plan_id' => $this->input->post("6", true),
+                'plan_code' => $this->input->post("7", true),
+                'premium' => $this->input->post("4", true),
+                'sumasured' => $this->input->post("3", true),
+                'phone_no' => $this->input->post("numberPhone", true),
+                'recharge' =>  false,
+                'recharge_visa' => $this->input->post("recharge", true),
+            ]);
+            
+            $this->visaPayment($this->input->post("4", true));
+        } else if ($this->input->post("Reg_type", true) == "Company") {
+            // var_dump($this->input->post('premium', true));
+            
+            $this->session->set_userdata([
+                'c_name' => $this->input->post("c_name", true),
+                'c_reg' => $this->input->post("c_reg", true),
+                'postalAddress' => $this->input->post("postalAddress", true),
+                'physicalAddress' => $this->input->post("physicalAddress", true),
+                'emailAddress' => $this->input->post("emailAddress", true),
+                'phoneNumber' => $this->input->post("phoneNumber", true),
+                'policy_type' => $this->input->post("2", true),
+                'plan_id' => $this->input->post("6", true),
+                'plan_code' => $this->input->post("7", true),
+                'plan_name' => $this->input->post("plan_name", true),
+                'premium' => $this->input->post("5", true),
+                'sumasured' => $this->input->post("4", true),
+                'paymentId' => 25,
+                'recharge_visa' => false,
+                'recharge' => $this->input->post("recharge", true),
+                'phone_no' => $this->input->post("numberPhone", true),
+                'total' => $this->input->post("total", true),
+                'agentCode' => $this->input->post("agent", true),
+                'Reg_type' => $this->input->post("Reg_type", true),
+                'premiumArr' => $this->input->post('premium', true),
+                'suminputArr' => $this->input->post('suminput', true),
+                'nrcArr' => $this->input->post('nrc1', true),
+                'genderArr' => $this->input->post('gender', true),
+                'dobArr' => $this->input->post('dob', true),
+                'othernameArr' => $this->input->post('othername', true),
+                'surnameArr' => $this->input->post('surname', true),
+                'coveredArr' => $this->input->post('covered', true),
+                'groupTotal' => $this->input->post('groupTotal'),
+
+            ]);
+
+            // var_dump($this->session->userdata("groupTotal"));
+            // var_dump($this->session->userdata("phone_no"));
+            $this->visaPayment($this->session->userdata("groupTotal"));
+        } else {
+            // if ($this->input->post("airtel_number", true) != NULL) {
+            $this->session->set_userdata([
+                'last_name' => $this->input->post("last_name", true),
+                'other_name' => $this->input->post("other_name", true),
+                'full_name' => $this->input->post("last_name", true) . '' . $this->input->post("other_name", true),
+                'postalAddress' => $this->input->post("postalAddress", true),
+                'physicalAddress' => $this->input->post("physicalAddress", true),
+                'emailAddress' => $this->input->post("emailAddress", true),
+                'phoneNumber' => $this->input->post("phoneNumber", true),
+                'date1' => $this->input->post("date1", true),
+                'nrc' => $this->input->post("nrc", true),
+                'occupations' => $this->input->post("occupations", true),
+                'gender1' => $this->input->post("gender1", true),
+                'policy_type' => $this->input->post("2", true),
+                'plan_id' => $this->input->post("6", true),
+                'plan_code' => $this->input->post("7", true),
+                'plan_name' => $this->input->post("plan_name", true),
+                'premium' => $this->input->post("5", true),
+                'sumasured' => $this->input->post("4", true),
+                'paymentId' => 25,
+                'recharge_visa' => false,
+                'recharge' => $this->input->post("recharge", true),
+                'phone_no' => $this->input->post("numberPhone", true),
+                'Reg_type' => $this->input->post("Reg_type", true),
+                'total' => $this->input->post("total", true),
+                'agentCode' => $this->input->post("agent", true),
+            ]);
+            // }
+
+            $this->visaPayment($this->session->userdata("premium"));
         }
 
         $this->createCustomerTemp($this->session->userdata('Reg_type'));
@@ -408,13 +606,13 @@ class Appointment extends CI_Controller
                             </soapenv:Header>
                             <soapenv:Body>
                                 <kon:processCustomerPayment>
-                                    <transactionAmount>' . $amount . '</transactionAmount>
+                                    <transactionAmount>'. $amount .'</transactionAmount>
                                     <customerMobile>' . $phone_no . '</customerMobile>
                                         <paymentReference>' . $this->session->userdata('ref') . '</paymentReference>
                                     </kon:processCustomerPayment>
                                 </soapenv:Body>
-                                </soapenv:Envelope>
-                                ';
+                            </soapenv:Envelope>
+                        ';
 
         $headers = array(
             "Content-type: text/xml",
@@ -495,13 +693,32 @@ class Appointment extends CI_Controller
                 </script>';
     }
 
+    public function sendSMS($sms, $phoneNo) {
+        // Get cURL resource
+        $curl = curl_init();
+    
+        $url = 'http://10.0.3.206:8080/SMS-BROADCASTOR/index.jsp?contact=26' . $phoneNo . '&sms=' . urlencode($sms) . ' ';
+    
+    // Set some options - we are passing in a useragent too here
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $url,
+            CURLOPT_USERAGENT => ''
+        ]);
+    
+    // Send the request & save response to $resp
+        $resp = curl_exec($curl);
+    // Close request to clear up some resources
+        curl_close($curl);
+    }
+
     public function paymentSucc()
     {
         $created_date = date('Y-m-d H:i:s');
 
         $mainFiles = $this->session->userdata('files');
 
-        if ($this->input->post("recharge", true)) {
+        if ($this->session->userdata('recharge')) {
             // $created_date = date('Y-m-d H:i:s');
             $this->db->insert('payment_receipts', array(
                 'receipt_no'   => '0972160250054858',
@@ -517,7 +734,33 @@ class Appointment extends CI_Controller
                 'amount'   => $this->session->userdata('premium'),
                 'company_id'   => 16,
             ));
+        }else if ($this->session->userdata('recharge_visa')) {
+            // $created_date = date('Y-m-d H:i:s');
+            $this->db->insert('payment_receipts', array(
+                'receipt_no'   => '0972160250054858',
+                'customer_id'   => $this->session->userdata('customer_id'),
+                'policy_id' => $this->session->userdata('policy_id'),
+                'policy_no' => $this->session->userdata('policy_code'),
+                'policy_holder' => $this->session->userdata('member_full_name'),
+                'plan_id' => $this->session->userdata('plan_id'),
+                'policy_member_id' =>  $this->session->userdata('policy_member_id'),
+                'date' => $created_date,
+                'collection_mode_id' => 25,
+                'doc_reference_date'   => $created_date,
+                'amount'   => $this->session->userdata('premium'),
+                'company_id'   => 16,
+            ));
         } else {
+            $attachments = '';
+            $agent = $this->session->userdata('agentCode');
+            
+            if($this->session->userdata('isLogIn')){
+                $agent = $this->session->userdata('agent_code');
+            }
+
+            if($this->session->userdata('attachments')!=null){
+                $attachments = $this->session->userdata('attachments');
+            }
 
             if ($this->session->userdata('Reg_type') == "Company") {
                 // var_dump($this->session->userdata('c_name'));
@@ -525,6 +768,7 @@ class Appointment extends CI_Controller
                 $this->saveDataToTemp();
 
                 $tableData = $this->getTemp();
+
 
                 $this->db->insert('customers', array(
                     'f_name' => '',
@@ -540,17 +784,20 @@ class Appointment extends CI_Controller
                     'address1' => $this->session->userdata('physicalAddress'),
                     'address2' => $this->session->userdata('postalAddress'),
                     'customer_type' => 'Group',
-                    'created_by' => $this->session->userdata('agentCode'),
+                    'created_by' => $agent,
                     'created_date' => $created_date,
                     'company_id' => 16,
-                    'attachments' => $this->session->userdata('attachments')
+                    'attachments' => $attachments
                 ));
 
-
-
+               
                 $customerId = $this->db->insert_id();
                 $policy_code = "DTI" . "-000000-" . $customerId;
                 // $customerIdRow = $customerId->result();
+
+                $message = " Dear ".$this->session->userdata('c_name')." thank you for payment of K ". $this->session->userdata('groupTotal')." to Madison Life Insurance on ".$created_date.", you have successfully created a Domestic travel policy with policy number  ".$policy_code." , Plan Name ".$this->session->userdata("plan_name")." for any queries or inquiries, please contact call centre on 4440. Protecting you all the way. ";
+
+                $this->sendSMS($message,$this->session->userdata('phoneNumber'));
 
                 foreach ($tableData->result() as $rows) {
                     // var_dump($rows);
@@ -564,7 +811,7 @@ class Appointment extends CI_Controller
                         'agent_id' => $this->session->userdata("agentCode"),
                         'policy_status'   => 'Active',
                         'currency_id'   => '6',
-                        'created_by'   => $this->session->userdata('agentCode'),
+                        'created_by'   => $agent,
                         'created_date'   => $created_date,
                         'updated_by'   => 0,
                         'updated_date' => $created_date,
@@ -605,7 +852,7 @@ class Appointment extends CI_Controller
                         'valid_from_date' => $created_date,
                         'valid_to_date' => $created_date,
                         // 'member_status' => $created_date,
-                        'created_by' => $this->session->userdata('agentCode'),
+                        'created_by' => $agent,
                         'created_date' => $created_date,
                         'updated_by' => 0,
                         'updated_date' => '0000-00-00 00:00:00',
@@ -657,26 +904,6 @@ class Appointment extends CI_Controller
 
                 // redirect('home');
             } else {
-
-                if ($this->session->userdata('recharge')) {
-
-                    // $this->db->insert('payment_receipts', array(
-                    //     'receipt_no'   => '0972160250054856',
-                    //     'customer_id'   => $customerId,
-                    //     'policy_id' => $policyIdRow[0]->id,
-                    //     'policy_no' => $this->session->userdata('plan_code'),
-                    //     'policy_holder' => $this->session->userdata('last_name') . +" " . +$this->session->userdata('other_name'),
-                    //     'plan_id' => $this->session->userdata('plan_id'),
-                    //     'date' => $created_date,
-                    //     'collection_mode_id' => $this->session->userdata('paymentId'),
-                    //     'doc_reference_date'   => $created_date,
-                    //     'amount'   => $this->session->userdata('premium'),
-                    //     'company_id'   => 16,
-                    // ));
-
-                    return;
-                }
-
                 // insert data into customers table
                 $this->db->insert('customers', array(
                     'f_name'   => $this->session->userdata('last_name'),
@@ -691,9 +918,9 @@ class Appointment extends CI_Controller
                     'address2' => $this->session->userdata('postalAddress'),
                     'occupation_id' => $this->session->userdata('occupations'),
                     'customer_type' => 'Individual',
-                    'created_by' => $this->session->userdata('agentCode'),
+                    'created_by' => $agent,
                     'created_date' => $created_date,
-                    'attachments' => $this->session->userdata('attachments'),
+                    'attachments' => $attachments,
                     'company_id' => 16,
                 ));
 
@@ -709,6 +936,10 @@ class Appointment extends CI_Controller
 
                 $policy_code = "DTI" . "-000000-" . $customerId;
 
+                $message = " Dear ".$this->session->userdata('last_name').", thank you for payment of K ". $this->session->userdata('premium')." to Madison Life Insurance on ".$created_date.", you have successfully created a Domestic travel policy with policy number ".$policy_code." , Plan Name ".$this->session->userdata("plan_name")." for any queries or inquiries, please contact call centre on 4440. Protecting you all the way. ";
+
+                $this->sendSMS($message,$this->session->userdata('phoneNumber'));
+
                 // Insert data in the Policies table
                 $this->db->insert('policies', array(
                     'customer_id'   => $customerId,
@@ -718,7 +949,7 @@ class Appointment extends CI_Controller
                     'agent_id' => $this->session->userdata("agentCode"),
                     'policy_status'   => 'Active',
                     'currency_id'   => '6',
-                    'created_by'   => $this->session->userdata('agentCode'),
+                    'created_by'   => $agent,
                     'created_date'   => $created_date,
                     'updated_by'   => 0,
                     'updated_date' => $created_date,
@@ -759,7 +990,7 @@ class Appointment extends CI_Controller
                     'valid_from_date' => $created_date,
                     'valid_to_date' => $created_date,
                     // 'member_status' => $created_date,
-                    'created_by' => $this->session->userdata('agentCode'),
+                    'created_by' => $agent,
                     'created_date' => $created_date,
                     'updated_by' => 0,
                     'updated_date' => '0000-00-00 00:00:00',
@@ -807,7 +1038,6 @@ class Appointment extends CI_Controller
                     'company_id'   => 16,
                 ));
 
-
                 // redirect('home');
 
             }
@@ -822,6 +1052,12 @@ class Appointment extends CI_Controller
 
     function createCustomerTemp($type)
     {
+        $agent = $this->session->userdata('agentCode');
+            
+        if($this->session->userdata('isLogIn')){
+            $agent = $this->session->userdata('agent_code');
+        }
+
         $created_date = date('Y-m-d H:i:s');
 
         if ($type == "Company") {
@@ -839,7 +1075,7 @@ class Appointment extends CI_Controller
                 'address1' => $this->session->userdata('physicalAddress'),
                 'address2' => $this->session->userdata('postalAddress'),
                 'customer_type' => 'Group',
-                'created_by' => $this->session->userdata('agentCode'),
+                'created_by' => $agent,
                 'status' => 'Inactive',
                 'created_date' => $created_date,
                 'company_id' => 16,
@@ -859,7 +1095,7 @@ class Appointment extends CI_Controller
                 'address2' => $this->session->userdata('postalAddress'),
                 'occupation_id' => $this->session->userdata('occupations'),
                 'customer_type' => 'Individual',
-                'created_by' => $this->session->userdata('agentCode'),
+                'created_by' => $agent,
                 'status' => 'Inactive',
                 'created_date' => $created_date,                
                 'company_id' => 16,
@@ -889,21 +1125,18 @@ class Appointment extends CI_Controller
         redirect('home');
     }
 
-    // public function checkMobilePayment(){
-
-    // }
-
     public function done()
     {
-        $reference = $this->session->userdata('ref');
+
+        $reference = $this->session->userdata('ref');//"0975704991021612";//$this->session->userdata('ref');
         // $reference = '0972160250054856';
         // echo $reference;
 
-        $status = $this->check_payment_status($this->session->userdata('ref'));
+        $status = $this->check_payment_status($reference);
         // $status = true
 
         // var_dump($status);
-        // $this->paymentSucc();
+        $this->paymentSucc();
 
         if (strlen(stristr($status, "Succ")) > 0) {
 
@@ -935,7 +1168,7 @@ class Appointment extends CI_Controller
                             Transaction failed
                         </div>
                         <ul class="list">
-                            <li>You must make your mobile money password is correct.</li>
+                            <li>You must make your mobile money password is correct.</li>'.$status.'
                             <li>You need to have sufficient funds in your mobile money account.</li>
                         </ul>
 
@@ -951,6 +1184,8 @@ class Appointment extends CI_Controller
                 </div>
                 ';
         }
+
+    
     }
 
 

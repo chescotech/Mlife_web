@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Unsupported extends CI_Controller
+class VisaPayment extends CI_Controller
 {
 
 	public function __construct()
@@ -12,7 +12,7 @@ class Unsupported extends CI_Controller
 			'website/home_model',
 			'website/menu_model',
 		));
-		
+
 	}
 
 	public function index($id = null)
@@ -22,7 +22,7 @@ class Unsupported extends CI_Controller
 
 		$this->pagination->initialize($config);
 
-		$data['title'] = display('Unsupported');
+		$data['title'] = display('VisaPayment');
 		#-------------------------------#
 		$data['setting'] = $this->home_model->setting();
 		// redirect if website status is disabled
@@ -31,13 +31,11 @@ class Unsupported extends CI_Controller
 		$data['basics'] = $this->home_model->basic_setting();
 
 		$data['languageList'] = $this->home_model->languageList();
-		$data['section'] = $this->home_model->section('unsupported');
+		$data['section'] = $this->home_model->section('VisaPayment');
 		$data['parent_menu'] = $this->menu_model->get_parent_menu();
 		$data["links"] = $this->pagination->create_links();
-		$data['content'] = $this->load->view('website/unsupported', $data, true);
+		$data['content'] = $this->load->view('website/VisaPayment', $data, true);
 		$this->load->view('website/index', $data);
 	}
-
-
 	
 }

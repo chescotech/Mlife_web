@@ -2875,7 +2875,7 @@ $Nrcs = $isNrc->result();
                                     <div style="display: flex; justify-content:space-between">
                                         <div>
                                             Main Benefit Monthly Cost (K)
-                                        </div>
+                                        </div>  
                                         <div style="padding-left:10px">
                                             <h5>
                                                 <div id="totalMonthlyCost"></div>
@@ -3008,7 +3008,7 @@ $Nrcs = $isNrc->result();
                                                         <div id="backToCoverBtn"></div>
 
                                                         <?= form_close() ?>
-
+ 
 
                                                     </div>
 
@@ -3019,33 +3019,17 @@ $Nrcs = $isNrc->result();
                                                                     <img src="./assets_web/img/icons/mastercard-logo.png" alt="Mastercard" /> <img src="./assets_web/img/icons/maestro.png" alt="maestro" />
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div class="mb-3">
-                                                                    <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Card Name</label>
-                                                                    <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput1" placeholder="">
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label style="color: #3b3b3b" for="exampleFormControlInput2" class="form-label">Card Number</label>
-                                                                    <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput2" placeholder="">
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput3" class="form-label">Expiry Date</label>
-                                                                        <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="First name">
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <label style="color: #3b3b3b" for="exampleFormControlInput4" class="form-label">CVV</label>
-                                                                        <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="Last name">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                           
                                                         </div>
+                                                        <?= form_open_multipart('website/appointment/VISACard', 'id="processInfoVisa"') ?>
 
-                                                        <div style="height:50px;"></div>
+                                                            <div style="height:50px;"></div>
 
-                                                        <button type="button" class="btn btn-block btn-primary">
-                                                            Make Payment
-                                                        </button>
+                                                            <button type="submit" class="btn btn-block btn-primary">
+                                                                Make VISA Payment
+                                                            </button>
+
+                                                        <?= form_close() ?>
                                                     </div>
 
                                                 </div>
@@ -4136,12 +4120,19 @@ $Nrcs = $isNrc->result();
                                 // console.log(tableData);
 
                                 var processForm2 = document.getElementById('processInfo');
+                                var processVISAForm = document.getElementById('processInfoVisa');
 
                                 var groupTotal = document.createElement('input');
                                 groupTotal.type = 'hidden';
                                 groupTotal.name = 'groupTotal';
                                 groupTotal.value = total_premuim;
                                 processForm2.appendChild(groupTotal);
+
+                                var groupTotalVisa = document.createElement('input');
+                                groupTotalVisa.type = 'hidden';
+                                groupTotalVisa.name = 'groupTotalVisa';
+                                groupTotalVisa.value = total_premuim;
+                                processVISAForm.appendChild(groupTotalVisa);
 
                                 tableData.forEach((element, index) => {
                                     // console.log(element);
@@ -4155,48 +4146,100 @@ $Nrcs = $isNrc->result();
                                     var PremiumInput = document.createElement('input');
                                     var SumInput = document.createElement('input');
 
+                                    var CoveredInputVisa = document.createElement('input');
+                                    var SurnameInputVisa = document.createElement('input');
+                                    var OtherNameInputVisa = document.createElement('input');
+                                    var DobInputVisa = document.createElement('input');
+                                    var GenderInputVisa = document.createElement('input');
+                                    var nrcInputVisa = document.createElement('input');
+                                    var PremiumInputVisa = document.createElement('input');
+                                    var SumInputVisa = document.createElement('input');
+
                                     CoveredInput.type = 'hidden';
                                     CoveredInput.name = 'covered[]';
                                     CoveredInput.value = element.Covered;
                                     processForm2.appendChild(CoveredInput);
 
+                                    CoveredInputVisa.type = 'hidden';
+                                    CoveredInputVisa.name = 'covered[]';
+                                    CoveredInputVisa.value = element.Covered;
+                                    processVISAForm.appendChild(CoveredInputVisa);
+
                                     SurnameInput.type = 'hidden';
                                     SurnameInput.name = 'surname[]';
                                     SurnameInput.value = element.Surname;
                                     processForm2.appendChild(SurnameInput);
+                                    
+                                    SurnameInputVisa.type = 'hidden';
+                                    SurnameInputVisa.name = 'surname[]';
+                                    SurnameInputVisa.value = element.Surname;
+                                    processVISAForm.appendChild(SurnameInputVisa);
 
                                     OtherNameInput.type = 'hidden';
                                     OtherNameInput.name = 'othername[]';
                                     OtherNameInput.value = element.OtherName;
                                     processForm2.appendChild(OtherNameInput);
 
+                                    OtherNameInputVisa.type = 'hidden';
+                                    OtherNameInputVisa.name = 'othername[]';
+                                    OtherNameInputVisa.value = element.OtherName;
+                                    processVISAForm.appendChild(OtherNameInputVisa);
+
                                     DobInput.type = 'hidden';
                                     DobInput.name = 'dob[]';
                                     DobInput.value = element.Dob;
                                     processForm2.appendChild(DobInput);
 
+                                    DobInputVisa.type = 'hidden';
+                                    DobInputVisa.name = 'dob[]';
+                                    DobInputVisa.value = element.Dob;
+                                    processVISAForm.appendChild(DobInputVisa);
+
                                     GenderInput.type = 'hidden';
                                     GenderInput.name = 'gender[]';
                                     GenderInput.value = element.Gender;
                                     processForm2.appendChild(GenderInput);
+                                    
+                                    GenderInputVisa.type = 'hidden';
+                                    GenderInputVisa.name = 'gender[]';
+                                    GenderInputVisa.value = element.Gender;
+                                    processVISAForm.appendChild(GenderInputVisa);
 
                                     nrcInput.type = 'hidden';
                                     nrcInput.name = 'nrc1[]';
                                     nrcInput.value = element.nrc;
                                     processForm2.appendChild(nrcInput);
 
+                                    nrcInputVisa.type = 'hidden';
+                                    nrcInputVisa.name = 'nrc1[]';
+                                    nrcInputVisa.value = element.nrc;
+                                    processVISAForm.appendChild(nrcInputVisa);
+
                                     PremiumInput.type = 'hidden';
                                     PremiumInput.name = 'premium[]';
                                     PremiumInput.value = element.Premium;
                                     processForm2.appendChild(PremiumInput);
+
+                                    PremiumInputVisa.type = 'hidden';
+                                    PremiumInputVisa.name = 'premium[]';
+                                    PremiumInputVisa.value = element.Premium;
+                                    processVISAForm.appendChild(PremiumInputVisa);
 
                                     SumInput.type = 'hidden';
                                     SumInput.name = 'suminput[]';
                                     SumInput.value = element.Sum;
                                     processForm2.appendChild(SumInput);
 
+                                    SumInputVisa.type = 'hidden';
+                                    SumInputVisa.name = 'suminput[]';
+                                    SumInputVisa.value = element.Sum;
+                                    processVISAForm.appendChild(SumInputVisa);
+
                                     var br = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                                     processForm2.appendChild(br);
+
+                                    var brVisa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                                    processVISAForm.appendChild(brVisa);
                                 });
 
                                 if (type == 'single') {
@@ -4212,6 +4255,12 @@ $Nrcs = $isNrc->result();
                                 TotalInput.name = 'total';
                                 TotalInput.value = total;
                                 processForm2.appendChild(TotalInput);
+
+                                var TotalInputVisa = document.createElement('input');
+                                TotalInputVisa.type = 'hidden';
+                                TotalInputVisa.name = 'total';
+                                TotalInputVisa.value = total;
+                                processVISAForm.appendChild(TotalInputVisa);
 
                                 // console.log(TotalInput);
 
@@ -4260,6 +4309,7 @@ $Nrcs = $isNrc->result();
                         // console.log($(identifier).data('plancode'), " <- plan-code");
 
                         var processForm2 = document.getElementById('processInfo');
+                        var processVISAForm = document.getElementById('processInfoVisa');
 
 
                         var hiddenInput1 = document.createElement('input');
@@ -4269,8 +4319,18 @@ $Nrcs = $isNrc->result();
                         hiddenInput1.value = $(identifier).data('type');
                         processForm2.appendChild(hiddenInput1);
 
+                        var hiddenInput1Visa = document.createElement('input');
+
+                        hiddenInput1Visa.type = 'hidden';
+                        hiddenInput1Visa.name = 1;
+                        hiddenInput1Visa.value = $(identifier).data('type');
+                        processVISAForm.appendChild(hiddenInput1Visa);
+
                         var br1 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br1);
+
+                        var br1Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br1Visa);
 
                         var hiddenInput2 = document.createElement('input');
 
@@ -4279,8 +4339,19 @@ $Nrcs = $isNrc->result();
                         hiddenInput2.value = $(identifier).data('policy');
                         processForm2.appendChild(hiddenInput2);
 
+                        var hiddenInput2Visa = document.createElement('input');
+
+                        hiddenInput2Visa.type = 'hidden';
+                        hiddenInput2Visa.name = 2;
+                        hiddenInput2Visa.value = $(identifier).data('policy');
+                        processVISAForm.appendChild(hiddenInput2Visa);
+
                         var br2 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br2);
+                        processVISAForm.appendChild(br2);
+
+                        var br2Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br2Visa);
 
                         var hiddenInput3 = document.createElement('input');
 
@@ -4288,9 +4359,19 @@ $Nrcs = $isNrc->result();
                         hiddenInput3.name = 3;
                         hiddenInput3.value = $(identifier).data('policytype');
                         processForm2.appendChild(hiddenInput3);
+                       
+                        var hiddenInput3Visa = document.createElement('input');
+
+                        hiddenInput3Visa.type = 'hidden';
+                        hiddenInput3Visa.name = 3;
+                        hiddenInput3Visa.value = $(identifier).data('policytype');
+                        processVISAForm.appendChild(hiddenInput3Visa);
 
                         var br3 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br3);
+
+                        var br3Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br3Visa);
 
                         var hiddenInput4 = document.createElement('input');
 
@@ -4299,8 +4380,18 @@ $Nrcs = $isNrc->result();
                         hiddenInput4.value = $(identifier).data('sum');
                         processForm2.appendChild(hiddenInput4);
 
+                        var hiddenInput4Visa = document.createElement('input');
+
+                        hiddenInput4Visa.type = 'hidden';
+                        hiddenInput4Visa.name = 4;
+                        hiddenInput4Visa.value = $(identifier).data('sum');
+                        processVISAForm.appendChild(hiddenInput4Visa);
+
                         var br4 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br4);
+
+                        var br4Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br4Visa);
 
                         var hiddenInput5 = document.createElement('input');
 
@@ -4309,8 +4400,18 @@ $Nrcs = $isNrc->result();
                         hiddenInput5.value = $(identifier).data('premium');
                         processForm2.appendChild(hiddenInput5);
 
+                        var hiddenInput5Visa = document.createElement('input');
+
+                        hiddenInput5Visa.type = 'hidden';
+                        hiddenInput5Visa.name = 5;
+                        hiddenInput5Visa.value = $(identifier).data('premium');
+                        processVISAForm.appendChild(hiddenInput5Visa);
+
                         var br5 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br5);
+
+                        var br5Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br5Visa);
 
                         var hiddenInput6 = document.createElement('input');
 
@@ -4319,8 +4420,18 @@ $Nrcs = $isNrc->result();
                         hiddenInput6.value = $(identifier).data('planid');
                         processForm2.appendChild(hiddenInput6);
 
+                        var hiddenInput6Visa = document.createElement('input');
+
+                        hiddenInput6Visa.type = 'hidden';
+                        hiddenInput6Visa.name = 6;
+                        hiddenInput6Visa.value = $(identifier).data('planid');
+                        processVISAForm.appendChild(hiddenInput6Visa);
+
                         var br6 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br6);
+
+                        var br6Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br6Visa);
 
                         var hiddenInput7 = document.createElement('input');
 
@@ -4329,8 +4440,32 @@ $Nrcs = $isNrc->result();
                         hiddenInput7.value = $(identifier).data('plancode');
                         processForm2.appendChild(hiddenInput7);
 
+                        var hiddenInput7Visa = document.createElement('input');
+ 
+                        hiddenInput7Visa.type = 'hidden';
+                        hiddenInput7Visa.name = 7;
+                        hiddenInput7Visa.value = $(identifier).data('plancode');
+                        processVISAForm.appendChild(hiddenInput7Visa);
+                        
+                        var planNameInput = document.createElement('input');
+
+                        planNameInput.type = 'hidden';
+                        planNameInput.name = 'plan_name';
+                        planNameInput.value = $(identifier).data('plantitle');
+                        processForm2.appendChild(planNameInput);
+
+                        var planNameInputVisa = document.createElement('input');
+
+                        planNameInputVisa.type = 'hidden';
+                        planNameInputVisa.name = 'plan_name';
+                        planNameInputVisa.value = $(identifier).data('plantitle');
+                        processVISAForm.appendChild(planNameInputVisa);
+
                         var br7 = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                         processForm2.appendChild(br7);
+
+                        var br7Visa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                        processVISAForm.appendChild(br7Visa);
 
                         // console.log($(identifier).data('sum'));
 
@@ -4560,7 +4695,6 @@ $Nrcs = $isNrc->result();
                             var day = dateStringForDay.slice(0, 2)
                             var month = dateStringForMonth.slice(2, 4)
                             var year = dateStringForYear.slice(4, 8)
-
 
                             DOBOfUser.id = "DOBOfUser";
                             DOBOfUser.innerHTML = '<div style="display:flex;"><div style="width: 53px; padding-left:10px; padding-right:10px; border:none; border-right:1px solid #ccc">' + month + '</div><div style="width: 53px; padding-left:10px; padding-right:10px; border:none; border-right:1px solid #ccc">' + day + '</div><div style="width: 53px; padding-left:10px; padding-right:10px;" >' + year + '</div></div>'
@@ -4796,6 +4930,7 @@ $Nrcs = $isNrc->result();
                         // console.log(total_premuim);
 
                         var processForm = document.getElementById('processInfo');
+                        var processVISAForm = document.getElementById('processInfoVisa');
 
                         data.forEach(element => {
                             var hiddenInput = document.createElement('input');
@@ -4805,8 +4940,18 @@ $Nrcs = $isNrc->result();
                             hiddenInput.value = element.value;
                             processForm.appendChild(hiddenInput);
 
+                            var hiddenInputVisa = document.createElement('input');
+
+                            hiddenInputVisa.type = 'hidden';
+                            hiddenInputVisa.name = element.name;
+                            hiddenInputVisa.value = element.value;
+                            processVISAForm.appendChild(hiddenInputVisa);
+
                             var br = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
                             processForm.appendChild(br);
+
+                            var brVisa = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
+                            processVISAForm.appendChild(brVisa);
                         });
 
                         // console.log('policy tupe = ', policy_type_selected);

@@ -8,7 +8,8 @@ $policies_rows = $this->db->select('*')
     ->from('policies AS po')
     ->where('po.id', $this->session->userdata('policy_id'))
     ->join('plans As pl', 'pl.id=po.plan_id', 'inner')
-    ->join('plan_dependents As pld', 'pld.id=pl.id', 'inner')
+    ->join('plan_dependents As pld', 'pld.plan_id=pl.id', 'inner')
+    ->limit(1)
     ->get();
 
 $policiesInfo = $policies_rows->result();
@@ -30,15 +31,18 @@ $policiesInfo = $policies_rows->result();
 // $plan_dependentInfo = $plan_dependentRows->result();
 
 // var_dump($policiesInfo)
+function ccMasking($number, $maskingCharacter = '*') {
+    return substr_replace($number, str_repeat($maskingCharacter, 8), 4, 4);
+}
 
 ?>
-
+ 
 <style>
     .mainView {
         width: 100%;
         height: 100vh;
         background-color: #FBFBFB;
-    }
+    } 
 
     .container {
         display: flex;
@@ -136,28 +140,17 @@ $policiesInfo = $policies_rows->result();
                 <table style="width: 100%;">
                     <tr>
                         <td>Name</td>
-                        <td><?php echo $this->session->userdata('full_name') ?></td>
+                        <td><?php echo $this->session->userdata('full_name')?></td>
                     </tr>
                     <tr>
                         <td>NRC Number</td>
-                        <td><?php echo $this->session->userdata('nrc') ?></td>
+                        <td><?php $maskedNumber = ccMasking($this->session->userdata('nrc')); echo $maskedNumber  ?></td>
                     </tr>
                     <tr>
                         <td>Mobile Number</td>
-                        <td><?php echo $this->session->userdata('mobile_no') ?></td>
+                        <td><?php $maskedNumber = ccMasking($this->session->userdata('mobile_no')); echo $maskedNumber  ?></td>
                     </tr>
-                    <tr>
-                        <td>Email address</td>
-                        <td><?php echo $this->session->userdata('email_id') ?></td>
-                    </tr>
-                    <tr>
-                        <td>Physical Address</td>
-                        <td><?php echo $this->session->userdata('address1') ?></td>
-                    </tr>
-                    <tr>
-                        <td>Postal Address</td>
-                        <td><?php echo $this->session->userdata('address2') ?></td>
-                    </tr>
+ 
 
                 </table>
             </div>
@@ -268,33 +261,18 @@ $policiesInfo = $policies_rows->result();
                                                             <img src="./assets_web/img/icons/mastercard-logo.png" alt="Mastercard" /> <img src="./assets_web/img/icons/maestro.png" alt="maestro" />
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                        <div class="mb-3">
-                                                            <label style="color: #3b3b3b" for="exampleFormControlInput1" class="form-label">Card Name</label>
-                                                            <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput1" placeholder="">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label style="color: #3b3b3b" for="exampleFormControlInput2" class="form-label">Card Number</label>
-                                                            <input style="border: 1px solid #ccc" type="email" class="form-control" id="exampleFormControlInput2" placeholder="">
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <label style="color: #3b3b3b" for="exampleFormControlInput3" class="form-label">Expiry Date</label>
-                                                                <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="First name">
-                                                            </div>
-                                                            <div class="col">
-                                                                <label style="color: #3b3b3b" for="exampleFormControlInput4" class="form-label">CVV</label>
-                                                                <input style="border: 1px solid #ccc" type="text" class="form-control" placeholder="" aria-label="Last name">
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                   
                                                 </div>
 
-                                                <div style="height:50px;"></div>
+                                                <?= form_open_multipart('website/appointment/VISACard', 'id="processInfo2"') ?>
 
-                                                <button type="button" class="btn btn-block btn-primary">
-                                                    Make Payment
-                                                </button>
+                                                        <div style="height:50px;"></div>
+
+                                                            <button type="submit" class="btn btn-block btn-primary">
+                                                                Make VISA Payment
+                                                            </button>
+
+                                                <?= form_close() ?>
                                             </div>
 
                                         </div>
@@ -364,6 +342,7 @@ $policiesInfo = $policies_rows->result();
         premium_amount_selected = arr[4];
 
         var processForm2 = document.getElementById('processInfo');
+        var processVISAForm = document.getElementById('processInfo2');
 
         arr.forEach((element, index) => {
             var hiddenInput = document.createElement('input');
@@ -372,9 +351,11 @@ $policiesInfo = $policies_rows->result();
             hiddenInput.name = index;
             hiddenInput.value = element;
             processForm2.appendChild(hiddenInput);
+            processVISAForm.appendChild(hiddenInput);
 
             var br = document.createElement('br'); //Not sure why you needed this <br> tag but here it is
             processForm2.appendChild(br);
+            processVISAForm.appendChild(br);
         });
 
         var hiddenInputRecharge = document.createElement('input');
@@ -384,6 +365,7 @@ $policiesInfo = $policies_rows->result();
         hiddenInputRecharge.value = 'true';
 
         processForm2.appendChild(hiddenInputRecharge);
+        processVISAForm.appendChild(hiddenInputRecharge);
 
 
 

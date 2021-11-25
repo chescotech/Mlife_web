@@ -69,20 +69,20 @@ class Premium extends CI_Controller
 
 	// check if a user already exists from the mlife customer table
 
-	public function checkPremiumUser()
+	public function checkPremiumUser() 
 	{
 		$nrc = $this->input->post('nrc', true);
 		$policy_code = $this->input->post('policy_code', true);
 
 		if($nrc!=""){
-			$num_rows = $this->db->query("SELECT cus.nrc,cus.f_name,cus.l_name,cus.c_name,cus.nrc,cus.mobile_no,cus.email_id,cus.address1,cus.address2,cus.attachments,pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.id,pom.policy_id,po.customer_id,po.policy_code
+			$num_rows = $this->db->query("SELECT cus.nrc,cus.f_name,cus.l_name,cus.c_name,cus.nrc,cus.mobile_no,cus.email_id,cus.address1,cus.address2,cus.attachments,pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.id,po.id AS policy_id,po.customer_id,po.policy_code
 			FROM customers AS cus
 			INNER JOIN policies AS po ON po.customer_id = cus.id
 			INNER JOIN policy_member AS pom ON pom.policy_id = po.id
 			INNER JOIN plan_dependents AS pop ON pop.plan_id=po.plan_id
 			WHERE cus.nrc = '$nrc' AND policy_code LIKE 'DTI%' ");
 		}else{
-			$num_rows = $this->db->query("SELECT cus.nrc,cus.f_name,cus.l_name,cus.c_name,cus.nrc,cus.mobile_no,cus.email_id,cus.address1,cus.address2,cus.attachments,pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.id,pom.policy_id,po.customer_id,po.policy_code
+			$num_rows = $this->db->query("SELECT cus.nrc,cus.f_name,cus.l_name,cus.c_name,cus.nrc,cus.mobile_no,cus.email_id,cus.address1,cus.address2,cus.attachments,pop.plan_id,pop.sum_assured,pop.fixed_premium,pom.id,po.id AS  policy_id,po.customer_id,po.policy_code
 			FROM customers AS cus
 			INNER JOIN policies AS po ON po.customer_id = cus.id
 			INNER JOIN policy_member AS pom ON pom.policy_id = po.id
@@ -94,7 +94,7 @@ class Premium extends CI_Controller
 			//var_dump($userInfo);
 		if ($num_rows->num_rows() > 0) {
 
-			$this->session->set_userdata([
+			$this->session->set_userdata([  
 				'isPremiumLogIn' => true,
 				'nrc' => $userInfo[0]->nrc,
 				'sum_assured' => $userInfo[0]->sum_assured,
@@ -107,7 +107,7 @@ class Premium extends CI_Controller
 				'f_name' => $userInfo[0]->f_name,
 				'l_name' => $userInfo[0]->l_name,
 				'c_name' => $userInfo[0]->c_name,
-				'mobile_no' => $policy_code,
+				'mobile_no' => $userInfo[0]->mobile_no,
 				'email_id' => $userInfo[0]->email_id,
 				'address1' => $userInfo[0]->address1,
 				'address2' => $userInfo[0]->address2,

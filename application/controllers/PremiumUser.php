@@ -9,7 +9,7 @@ class Premiumuser extends CI_Controller
         parent::__construct();
 
         $this->load->model(array(
-            'website/home_model',
+            'website/home_model', 
             'website/menu_model',
         ));
 

@@ -44,7 +44,7 @@ class Dashboard extends CI_Controller
                 redirect('login');
             } else {
                 // codeigniter session stored data          
-                $session_data = $this->session->set_userdata([
+                $session_data = $this->session->set_userdata([ 
                     'isLogIn'          => true,
                     'agent_f_name'     => $agentData->f_name,
                     'agent_l_name'     => $agentData->l_name,
