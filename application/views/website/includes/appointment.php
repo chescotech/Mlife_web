@@ -2765,9 +2765,10 @@ $Nrcs = $isNrc->result();
                                         </span>
                                         <button type="button" name="load_data" id="load_data" class="btn btn-primary btn-sm">Display data</button>
 
-                                        <!-- <button type="button" value="<?php echo $this->session->userdata('docfile');?>" name="deleteCsv" id="deleteCsv" class="btn btn-primary btn-sm"> Reset </button> -->
+                                        <!-- <button type="button" value="<?php echo $this->session->userdata('docfile'); ?>" name="deleteCsv" id="deleteCsv" class="btn btn-primary btn-sm"> Reset </button> -->
                                         <!-- <button onclick="deleteCsv()" class="btn btn-primary btn-sm">Reset</button> -->
-                                        <!-- <input  value="<?php //echo $this->session->userdata('docfile'); ?>" name="deleteCsv" id="deleteCsv" /> -->
+                                        <!-- <input  value="<?php //echo $this->session->userdata('docfile'); 
+                                                            ?>" name="deleteCsv" id="deleteCsv" /> -->
                                         <!-- file input ends here -->
                                         <a data-toggle="modal" data-target="#staticBackdrop1" id="tcs" style="color:#fff; padding:5px; border-radius:20px; background-color:blue; cursor:pointer">How to upload</a>
                                         <!-- <div id="employee_table"></div> -->
@@ -2775,8 +2776,8 @@ $Nrcs = $isNrc->result();
                                     </div>
 
 
-                                     <!-- uploadecel Modal giftps commented bellow 456732-->
-                                     <div class="modal fade" id="uploadexcel" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdrop1Label" aria-hidden="true">
+                                    <!-- uploadecel Modal giftps commented bellow 456732-->
+                                    <div class="modal fade" id="uploadexcel" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdrop1Label" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
                                             <div style="color: #3b3b3b" class="modal-content">
                                                 <div class="modal-header">
@@ -2821,7 +2822,7 @@ $Nrcs = $isNrc->result();
                                                     <h2> <img src="assets_web/img/mlifelogo.png" style="width:63%" class="img-responsive"> </h2>
 
                                                     <form id="fileToupload" class="uploadform" method="post" enctype="multipart/form-data" action=''>
-                                                        Upload your image <input type="file" name="imagefile" />
+                                                        Upload your image <input type="file" name="imagefile" accept=".csv" />
                                                         <input type="submit" value="Submit" name="submitbtn" id="submitbtn">
                                                     </form>
 
@@ -2875,7 +2876,7 @@ $Nrcs = $isNrc->result();
                                     <div style="display: flex; justify-content:space-between">
                                         <div>
                                             Main Benefit Monthly Cost (K)
-                                        </div>  
+                                        </div>
                                         <div style="padding-left:10px">
                                             <h5>
                                                 <div id="totalMonthlyCost"></div>
@@ -3008,7 +3009,7 @@ $Nrcs = $isNrc->result();
                                                         <div id="backToCoverBtn"></div>
 
                                                         <?= form_close() ?>
- 
+
 
                                                     </div>
 
@@ -3019,15 +3020,15 @@ $Nrcs = $isNrc->result();
                                                                     <img src="./assets_web/img/icons/mastercard-logo.png" alt="Mastercard" /> <img src="./assets_web/img/icons/maestro.png" alt="maestro" />
                                                                 </div>
                                                             </div>
-                                                           
+
                                                         </div>
                                                         <?= form_open_multipart('website/appointment/VISACard', 'id="processInfoVisa"') ?>
 
-                                                            <div style="height:50px;"></div>
+                                                        <div style="height:50px;"></div>
 
-                                                            <button type="submit" class="btn btn-block btn-primary">
-                                                                Make VISA Payment
-                                                            </button>
+                                                        <button type="submit" class="btn btn-block btn-primary">
+                                                            Make VISA Payment
+                                                        </button>
 
                                                         <?= form_close() ?>
                                                     </div>
@@ -3107,8 +3108,12 @@ $Nrcs = $isNrc->result();
                             type: 'POST',
                             data: formData,
                             success: function(data) {
-                                CSV_ID=data;
-                                alert("File uploaded successfully.")
+                                if (data === 'Your file is empty. Please fill in the file then upload again.') {
+                                    alert(data)
+                                } else {
+                                    CSV_ID = data;
+                                    alert('File uploaded successfully.')
+                                }
                             },
                             error: function(response) {
                                 alert('Cant find php file')
@@ -4169,7 +4174,7 @@ $Nrcs = $isNrc->result();
                                     SurnameInput.name = 'surname[]';
                                     SurnameInput.value = element.Surname;
                                     processForm2.appendChild(SurnameInput);
-                                    
+
                                     SurnameInputVisa.type = 'hidden';
                                     SurnameInputVisa.name = 'surname[]';
                                     SurnameInputVisa.value = element.Surname;
@@ -4199,7 +4204,7 @@ $Nrcs = $isNrc->result();
                                     GenderInput.name = 'gender[]';
                                     GenderInput.value = element.Gender;
                                     processForm2.appendChild(GenderInput);
-                                    
+
                                     GenderInputVisa.type = 'hidden';
                                     GenderInputVisa.name = 'gender[]';
                                     GenderInputVisa.value = element.Gender;
@@ -4359,7 +4364,7 @@ $Nrcs = $isNrc->result();
                         hiddenInput3.name = 3;
                         hiddenInput3.value = $(identifier).data('policytype');
                         processForm2.appendChild(hiddenInput3);
-                       
+
                         var hiddenInput3Visa = document.createElement('input');
 
                         hiddenInput3Visa.type = 'hidden';
@@ -4441,12 +4446,12 @@ $Nrcs = $isNrc->result();
                         processForm2.appendChild(hiddenInput7);
 
                         var hiddenInput7Visa = document.createElement('input');
- 
+
                         hiddenInput7Visa.type = 'hidden';
                         hiddenInput7Visa.name = 7;
                         hiddenInput7Visa.value = $(identifier).data('plancode');
                         processVISAForm.appendChild(hiddenInput7Visa);
-                        
+
                         var planNameInput = document.createElement('input');
 
                         planNameInput.type = 'hidden';
@@ -4483,21 +4488,23 @@ $Nrcs = $isNrc->result();
                         // $('#sum').html('Sum assured K ' + sum_assured_selected)
                         $('#planType').html('Plan type ' + '<span style="color:green">' + plan_name + '</span>')
                         ///// add data fromm db
-                        if(cover_type_selected == 'Combined'){
+                        if (cover_type_selected == 'Combined') {
                             var pname = $(identifier).data('plantitle');
                             console.log(pname);
                             var PlanName = '<?php echo $PlanName; ?>';
                             console.log('YYYYYY');
-                            $.ajax({  
-                                type: 'POST',  
-                                url: '<?= base_url('website/appointment/planName') ?>', 
-                                data: { planname: pname },
+                            $.ajax({
+                                type: 'POST',
+                                url: '<?= base_url('website/appointment/planName') ?>',
+                                data: {
+                                    planname: pname
+                                },
                                 success: function(response) {
                                     $('#sum').html(response)
                                     // console.log(response)
                                 }
                             });
-                        }else{
+                        } else {
                             $('#sum').html('Sum assured K ' + sum_assured_selected)
                         }
                         ///// add data fromm db
@@ -4740,87 +4747,87 @@ $Nrcs = $isNrc->result();
                             // calculateTotalPremium(premium_amount_selected);
 
                             var employee_data = '';
-                                
 
-                                $('#load_data').click(function() {
-                                
-                                        csvUploaded = true;
 
-                                        var uniqid =CSV_ID;
-                                        $.ajax({
-                                            url: "assets_web/docs/excel/" + uniqid + ".csv",
-                                            dataType: "text",
-                                            success: function(data) {
-                                                employee_data = data.split(/\r?\n|\r/);
-                                                // Validate to set minimum to 10
-                                                if (employee_data.length < 11) {
-                                                    alert('You cannot have less than 10 persons covered under the group policy.Add more members in the cvs documnet and reupload');
-                                                } else {
-                                                    var table_data = ''; //'<table class="table table-bordered table-striped">';
-                                                    for (var count = 0; count < employee_data.length; count++) {
-                                                        var cell_data = employee_data[count].split(",");
-                                                        cell_data.push(premium_amount_selected, sum_assured_selected)
-                                                        // console.log(premium_amount_selected, sum_assured_selected)
-                                                        table_data += '<tr>';
-                                                        for (var cell_count = 0; cell_count < cell_data.length; cell_count++) {
-                                                            if (count === 0) {
-                                                                // table_data += '<th>' + cell_data[cell_count] + '</th>';
-                                                            } else {
-                                                                table_data += '<td>' + cell_data[cell_count] + '</td>';
-                                                            }
+                            $('#load_data').click(function() {
+
+                                    csvUploaded = true;
+
+                                    var uniqid = CSV_ID;
+                                    $.ajax({
+                                        url: "assets_web/docs/excel/" + uniqid + ".csv",
+                                        dataType: "text",
+                                        success: function(data) {
+                                            employee_data = data.split(/\r?\n|\r/);
+                                            // Validate to set minimum to 10
+                                            if (employee_data.length < 11) {
+                                                alert('You cannot have less than 10 persons covered under the group policy.Add more members in the cvs documnet and reupload');
+                                            } else {
+                                                var table_data = ''; //'<table class="table table-bordered table-striped">';
+                                                for (var count = 0; count < employee_data.length; count++) {
+                                                    var cell_data = employee_data[count].split(",");
+                                                    cell_data.push(premium_amount_selected, sum_assured_selected)
+                                                    // console.log(premium_amount_selected, sum_assured_selected)
+                                                    table_data += '<tr>';
+                                                    for (var cell_count = 0; cell_count < cell_data.length; cell_count++) {
+                                                        if (count === 0) {
+                                                            // table_data += '<th>' + cell_data[cell_count] + '</th>';
+                                                        } else {
+                                                            table_data += '<td>' + cell_data[cell_count] + '</td>';
                                                         }
-                                                        // table_data += '<td>' + premium_amount_selected + '</td> <td>' + sum_assured_selected + '</td> </tr>';
-                                                        table_data += '</tr>';
                                                     }
-
+                                                    // table_data += '<td>' + premium_amount_selected + '</td> <td>' + sum_assured_selected + '</td> </tr>';
+                                                    table_data += '</tr>';
                                                 }
-                                                // table_data += '</table>';
-                                                // console.log(employee_data.length + "total rows");
 
-                                                $('#employee_table').html(table_data);
-                                                tabb = document.getElementById("autotable").rows[0].cells.length;
-                                                $('#autotable').append(table_data);
-                                                // tabb.append(table_data);// Calculate premium
-                                                total_premuim = parseInt(premium_amount_selected) * (employee_data.length - 1);
-                                                document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
-                                                document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
-                                                // calculateTotalPremium(premium_amount_selected); 
-                                                $('#load_manual_data').hide(); //Hide btn
-                                                $('#addtable_csv').show(); // Hide btn
-                                                $('#tcs1').hide();
-                                                $('#load_data').hide();
-                                                $('#remove_info').hide();
-                                            },
-                                            error: function(data) {
-                                                // $('#employee_table').html('<br><h1>HELLOE </h1><br>');
-                                                console.log('no file')
                                             }
-                                        });
-                                    }),
-                                    $('#deleteCsv').click(function() {
-                                        var uniqid =CSV_ID;
-                                        // alert(uniqid);
-                                        $.ajax({
-                                            url: '',
-                                            type: 'post',
-                                            data: {
-                                                uniqid: uniqid
-                                            },
-                                            success: function(response) {
+                                            // table_data += '</table>';
+                                            // console.log(employee_data.length + "total rows");
 
-                                                // Changing image source when remove
-                                                if (response == 1) {
-                                                    alert('Worked');
-                                                    // $("#img_" + id).attr("src","images/noimage.png");
-                                                }
-                                            },
-                                            error: function(response) {
-                                                alert('Cant find php file')
-                                            }
-                                        });
+                                            $('#employee_table').html(table_data);
+                                            tabb = document.getElementById("autotable").rows[0].cells.length;
+                                            $('#autotable').append(table_data);
+                                            // tabb.append(table_data);// Calculate premium
+                                            total_premuim = parseInt(premium_amount_selected) * (employee_data.length - 1);
+                                            document.getElementById("totalMonthlyCost").innerHTML = total_premuim;
+                                            document.getElementById("totalMonthlyCost1").innerHTML = total_premuim;
+                                            // calculateTotalPremium(premium_amount_selected); 
+                                            $('#load_manual_data').hide(); //Hide btn
+                                            $('#addtable_csv').show(); // Hide btn
+                                            $('#tcs1').hide();
+                                            $('#load_data').hide();
+                                            $('#remove_info').hide();
+                                        },
+                                        error: function(data) {
+                                            // $('#employee_table').html('<br><h1>HELLOE </h1><br>');
+                                            console.log('no file')
+                                        }
                                     });
+                                }),
+                                $('#deleteCsv').click(function() {
+                                    var uniqid = CSV_ID;
+                                    // alert(uniqid);
+                                    $.ajax({
+                                        url: '',
+                                        type: 'post',
+                                        data: {
+                                            uniqid: uniqid
+                                        },
+                                        success: function(response) {
 
-                          
+                                            // Changing image source when remove
+                                            if (response == 1) {
+                                                alert('Worked');
+                                                // $("#img_" + id).attr("src","images/noimage.png");
+                                            }
+                                        },
+                                        error: function(response) {
+                                            alert('Cant find php file')
+                                        }
+                                    });
+                                });
+
+
                             var total_people = (employee_data.length - 1)
                             $("#addtable_csv").on('click', function() {
                                 addRow("autotable", table_type_select);
@@ -5170,7 +5177,7 @@ $Nrcs = $isNrc->result();
                     })
 
                     $('#deleteCsv').click(function() {
-                        var uniqid =CSV_ID;
+                        var uniqid = CSV_ID;
                         // alert(uniqid);
                         $.ajax({
                             url: '',
